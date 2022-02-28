@@ -3,8 +3,8 @@
 ## build
 
 ```
-$ git clone git@github.com:T-unity/normal-laravel.git
-$ cd normal-laravel
+$ git clone git@github.com:T-unity/laravel-template.git
+$ cd laravel-template
 $ docker compose up -d --build
 $ docker compose exec app bash
 
@@ -19,6 +19,12 @@ $ docker compose exec app bash
 ## VCS
 
 ```
+git remote set-url origin (your_repo's_url)
+e.g: git remote set-url origin git@github.com:T-unity/laravel-prod.git
+(Use ssh instead of http)
+
+or
+
 git add .
 git commit -m 'init'
 git push (your_repo's_url) master
