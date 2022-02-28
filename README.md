@@ -8,6 +8,13 @@ $ cd laravel-template
 $ docker compose up -d --build
 $ docker compose exec app bash
 
+and execute...
+
+[app container] $ bash initialize.sh
+[app container] $ rm initialize.sh
+
+or
+
 [app container] $ composer install
 [app container] $ cp .env.example .env
 [app container] $ php artisan key:generate
