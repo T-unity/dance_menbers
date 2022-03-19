@@ -21,5 +21,10 @@ services:
     ports:
       - 33060:3306
 
+  mail:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+
 volumes:
   db-store:
