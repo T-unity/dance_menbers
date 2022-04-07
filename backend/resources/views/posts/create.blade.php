@@ -4,7 +4,7 @@
 <form action="{{ route('posts.store') }}" method="post">
   @csrf
 
-  <input type="text">
+  <input name="content" type="text">
 
   <button type="submit">送信する</button>
 

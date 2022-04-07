@@ -24,7 +24,7 @@ Route::get('/dashboard', function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/posts', 'App\Http\Controllers\PostController@index' );
+Route::get('/posts', 'App\Http\Controllers\PostController@index' )->name('posts.index');
 Route::get('/posts/create', 'App\Http\Controllers\PostController@create' );
 // Route::post('/posts', 'App\Http\Controllers\PostController@index' );
 Route::post('/posts', 'App\Http\Controllers\PostController@store' )->name('posts.store');

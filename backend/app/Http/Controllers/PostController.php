@@ -26,8 +26,17 @@ class PostController extends Controller
   public function store( Request $req )
   {
     // return;
-    var_dump( $req );
-    exit;
+    // var_dump( $req );
+    // var_dump( $req->all() );
+    // dd( $req );
+    // var_dump( $req->get('content') );
+    // exit;
+    $post = Post::create([
+      'content' => $req->get('content')
+    ]);
+
+    // return view( 'posts.index' );
+    return redirect()->route('posts.index');
   }
 
 }

@@ -2,6 +2,10 @@
 
 <?php
 foreach ( $posts as $post ) {
-  echo $post->id;
-  echo $post->content;
+  echo $post->id . PHP_EOL;
+  echo '<br>';
+  echo $post->content . PHP_EOL;
+  echo '<br>';
+  echo '----------';
+  echo '<br>';
 }
