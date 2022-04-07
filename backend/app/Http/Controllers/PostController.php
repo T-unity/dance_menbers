@@ -18,4 +18,16 @@ class PostController extends Controller
     ]);
   }
 
+  public function create()
+  {
+    return view('/posts/create');
+  }
+
+  public function store( Request $req )
+  {
+    // return;
+    var_dump( $req );
+    exit;
+  }
+
 }
