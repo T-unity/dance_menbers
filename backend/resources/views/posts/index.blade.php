@@ -2,15 +2,32 @@
 
 <?php
 use App\Models\User;
-
-foreach ( $posts as $post ) {
+foreach ( $posts as $post ) :
   $user = User::find( $post->user_id );
-  echo $user->name . '(' . $post->user_id . ')';
-  echo '<br>';
-  echo $post->id . PHP_EOL;
-  echo '<br>';
-  echo $post->content . PHP_EOL;
-  echo '<br>';
-  echo '----------';
-  echo '<br>';
-}
+  ?>
+
+<div class="container">
+  <div class="posts_wrapper">
+    <div class="posted_user">
+      <?= $user->name ; ?>
+    </div>
+    <div class="post_content">
+      <?= $post->content ; ?>
+    </div>
+  </div>
+</div>
+
+<?php endforeach; ?>
+
+<style>
+  .container {
+    width: 80%;
+    margin: 0 auto;
+  }
+  .posts_wrapper {
+    width: calc(100% - 80px);
+    background-color: #f0f0f0;
+    margin: 1%;
+    padding: 1%;
+  }
+</style>
