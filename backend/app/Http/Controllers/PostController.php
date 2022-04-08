@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-// Postモデルを使用
 use App\Models\Post;
+// use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
   public function index()
   {
     // $posts = Post::all();
+    // $user =
 
     return view('/posts/index', [
       'posts' => Post::all()
@@ -27,12 +29,20 @@ class PostController extends Controller
   {
     // return;
     // var_dump( $req );
+
     // var_dump( $req->all() );
+    // var_dump( Auth::id() );
+
     // dd( $req );
     // var_dump( $req->get('content') );
     // exit;
-    $post = Post::create([
-      'content' => $req->get('content')
+
+    // $posted_user = Auth::id();
+
+    // $post = Post::create([
+    Post::create([
+      'user_id' => Auth::id(),
+      'content' => $req->get('content'),
     ]);
 
     // return view( 'posts.index' );
