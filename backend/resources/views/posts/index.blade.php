@@ -7,18 +7,20 @@ foreach ( $posts as $post ) :
   ?>
 
 <div class="container">
-  <div class="posts_wrapper">
-    <div class="post_title">
-      <?= $post->title ; ?>
-      <span class="fs-10"><?= $post->id ; ?></span>
+  <a href="<?= route('posts.show', $post->id) ?>">
+    <div class="posts_wrapper">
+      <div class="post_title">
+        <?= $post->title ; ?>
+        <span class="fs-10"><?= $post->id ; ?></span>
+      </div>
+      <div class="post_owner">
+        <?= $user->name ; ?>
+      </div>
+      <div class="post_content">
+        <?= $post->content ; ?>
+      </div>
     </div>
-    <div class="post_owner">
-      <?= $user->name ; ?>
-    </div>
-    <div class="post_content">
-      <?= $post->content ; ?>
-    </div>
-  </div>
+  </a>
 </div>
 
 <?php endforeach; ?>
@@ -27,6 +29,10 @@ foreach ( $posts as $post ) :
   .container {
     width: 80%;
     margin: 0 auto;
+  }
+  .container a {
+    text-decoration: none;
+    color: inherit;
   }
   .posts_wrapper {
     width: calc(100% - 80px);

@@ -29,3 +29,4 @@ Route::get('/posts', 'App\Http\Controllers\PostController@index' )->name('posts.
 Route::get('/posts/create', 'App\Http\Controllers\PostController@create' )->middleware(['auth']);
 // Route::post('/posts', 'App\Http\Controllers\PostController@index' );
 Route::post('/posts', 'App\Http\Controllers\PostController@store' )->middleware(['auth'])->name('posts.store');
+Route::get('/posts/{post}', 'App\Http\Controllers\PostController@show' )->name('posts.show');
