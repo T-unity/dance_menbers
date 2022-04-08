@@ -8,7 +8,11 @@ foreach ( $posts as $post ) :
 
 <div class="container">
   <div class="posts_wrapper">
-    <div class="posted_user">
+    <div class="post_title">
+      <?= $post->title ; ?>
+      <span class="fs-10"><?= $post->id ; ?></span>
+    </div>
+    <div class="post_owner">
       <?= $user->name ; ?>
     </div>
     <div class="post_content">
@@ -29,5 +33,8 @@ foreach ( $posts as $post ) :
     background-color: #f0f0f0;
     margin: 1%;
     padding: 1%;
+  }
+  .fs-10 {
+    font-size: 10px;
   }
 </style>

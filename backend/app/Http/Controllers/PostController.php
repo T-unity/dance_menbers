@@ -14,7 +14,8 @@ class PostController extends Controller
   {
 
     return view('/posts/index', [
-      'posts' => Post::all(),
+      // 'posts' => Post::all(),
+      'posts' => Post::all()->sortByDesc('id')
     ]);
   }
 
@@ -40,6 +41,7 @@ class PostController extends Controller
     // $post = Post::create([
     Post::create([
       'user_id' => Auth::id(),
+      'title' => $req->get('title'),
       'content' => $req->get('content'),
     ]);
 
