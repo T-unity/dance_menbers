@@ -12,9 +12,12 @@ echo $post->content;
 echo '<br>';
 echo $user->name;
 
+use App\Models\Applicant as ModelsApplicant;
 ?>
 <br>
-<a href="{{ route('post.applicants', ['id' => $post->id]) }}">応募する</a>
+<?php if (ModelsApplicant::is_applied($post->id) === false): ?>
+  <a href="{{ route('post.applicants', ['id' => $post->id]) }}">応募する</a>
+<?php endif; ?>
 
 <style>
   a {
