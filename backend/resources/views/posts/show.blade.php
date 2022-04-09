@@ -1,3 +1,7 @@
+@extends('base')
+@section('content')
+
+
 <a href="{{ route('top') }}">トップページ</a>
 <br>
 <a href="{{ route('posts.create') }}">投稿の新規作成</a>
@@ -20,6 +24,8 @@ use App\Models\Applicant as ModelsApplicant;
 <br>
 <?php if (ModelsApplicant::is_applied($post->id) === false): ?>
   <a href="{{ route('post.applicants', ['id' => $post->id]) }}">応募する</a>
+<?php else: ?>
+  <p>この投稿に応募しました</p>
 <?php endif; ?>
 
 <style>
@@ -32,3 +38,5 @@ use App\Models\Applicant as ModelsApplicant;
     background-color: #fff;
   }
 </style>
+
+@endsection

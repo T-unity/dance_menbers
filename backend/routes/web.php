@@ -24,4 +24,5 @@ Route::get('/posts/{post}', 'App\Http\Controllers\PostController@show' )->name('
 
 // 応募機能
 Route::get('post/{id}/applicants', 'App\Http\Controllers\Applicant@store' )->name('post.applicants');
+// Route::get('post/{id}/unapply', 'App\Http\Controllers\Applicant@store' )->name('post.unapply');
 // 応募機能
