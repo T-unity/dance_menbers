@@ -40,7 +40,7 @@ class Applicant extends Controller
       'user_id' => Auth::id(),
     ]);
 
-    return redirect()->back();
+    return redirect()->back()->with('successMessage', '応募しました');
   }
 
 }

@@ -1,5 +1,9 @@
 <h1>投稿詳細</h1>
 
+@if (session('successMessage'))
+  {{ session('successMessage') }}
+@endif
+
 <?php
 
 echo $post->title;
