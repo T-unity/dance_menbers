@@ -23,9 +23,12 @@ echo $user->name;
 use App\Models\Applicant as ModelsApplicant;
 ?>
 <br>
-<?php if (ModelsApplicant::is_applied($post->id) === false): ?>
+<?php if (ModelsApplicant::is_applied($post->id) === false
+      && ModelsApplicant::is_owned($post->id) === false): ?>
   <a href="{{ route('post.applicants', ['id' => $post->id]) }}">応募する</a>
-<?php else: ?>
+<?php elseif (ModelsApplicant::is_owned($post->id)):
+//自分の投稿の場合は何も表示しない
+  else: ?>
   <p>この投稿に応募しました</p>
 <?php endif; ?>
 

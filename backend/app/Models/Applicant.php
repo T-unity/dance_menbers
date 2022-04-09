@@ -36,7 +36,7 @@ class Applicant extends Model
      * @param int $id | 投稿のID(Primary Key)
      * @return bool | 未応募ならFalse、応募済ならTrue
      */
-    public static function is_applied( $id )
+    public static function is_applied($id)
     {
       $user_id = Auth::id();
       $results = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , $user_id)->get();
@@ -45,6 +45,16 @@ class Applicant extends Model
         if ( (int)$id === (int)$res->post_id ) {
           return true;
         }
+      }
+
+      return false;
+    }
+
+    public static function is_owned( $id ) {
+      $posted_user = Post::find($id)->user_id;
+
+      if ((int)$posted_user === (int)Auth::id()) {
+        return true;
       }
 
       return false;
