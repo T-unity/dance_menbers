@@ -28,7 +28,7 @@ $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('us
 <h2>自分の募集一覧</h2>
 
 <?php foreach ($own_posts as $post) :?>
-  <a href="<?php route('posts.show', $post->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $post->id; ?></span>
+  <a href="<?= route('posts.show', $post->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $post->id; ?></span>
   <br>
 <?php endforeach; ?>
 
@@ -38,7 +38,7 @@ $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('us
 foreach ($own_applicants as $apply) :
   $post = Post::find($apply->post_id);
 ?>
-  <a href="<?php route('posts.show', $apply->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $apply->id; ?></span>
+  <a href="<?= route('posts.show', $apply->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $apply->id; ?></span>
   <br>
 <?php endforeach; ?>
 

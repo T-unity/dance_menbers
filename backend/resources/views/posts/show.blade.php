@@ -1,6 +1,8 @@
 @extends('base')
 @section('content')
 
+<a href="{{ route('dashboard') }}">ダッシュボード</a>
+<br>
 <a href="{{ route('top') }}">トップページ</a>
 <br>
 <a href="{{ route('posts.index') }}">投稿一覧</a>
