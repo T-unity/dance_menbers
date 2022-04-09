@@ -16,7 +16,7 @@
   <title>Document</title>
   <style>
     body {
-      /* font-family: 'Noto Serif JP', serif; */
+      font-family: 'Noto Serif JP', serif;
     }
   </style>
 </head>
