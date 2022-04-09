@@ -24,6 +24,14 @@ Route::get('/posts/{post}', 'App\Http\Controllers\PostController@show' )->name('
 Route::get('post/{id}/applicants', 'App\Http\Controllers\Applicant@store')->name('post.applicants');
 // Route::get('post/{id}/unapply', 'App\Http\Controllers\Applicant@store' )->name('post.unapply');
 // 応募機能
+
+// DM機能
+// chat_rooms
+Route::get('rooms', 'App\Http\Controllers\ChatRoomController@request')->name('rooms.request');
+// chat_messages
+// Route::get('message', 'App\Http\Controllers\ChatMessageController@index')->name('message.request');
+// DM機能
+
 // プロフィール
 Route::get('user/{id}', 'App\Http\Controllers\UserController@show')->name('user.show');
 // プロフィール
