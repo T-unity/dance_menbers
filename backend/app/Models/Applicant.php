@@ -30,18 +30,23 @@ class Applicant extends Model
 
     // コントローラ側でこのメソッドを呼ぶためだけにオブジェクトを生成するのが冗長だと思ったのでstaticにしたが、
     // そもそもヘルパー関数的にして関数として呼べるようにした方が便利かも？
+    /**
+     * ユーザーが投稿に対して、既に応募済かどうかを判定する。
+     *
+     * @param int $id | 投稿のID(Primary Key)
+     * @return bool | 未応募ならFalse、応募済ならTrue
+     */
     public static function is_applied( $id )
     {
       $user_id = Auth::id();
-      // $applied = ModelsApplicant::where('user_id', $user_id);
-      $query = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , $user_id);
+      $results = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , $user_id)->get();
 
-      foreach ( $query->get() as $res ){
+      foreach ( $results as $res ){
         if ( (int)$id === (int)$res->post_id ) {
-          return false;
+          return true;
         }
       }
 
-      return true;
+      return false;
     }
 }
