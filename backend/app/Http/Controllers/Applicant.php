@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Applicant as ModelsApplicant;
 use Illuminate\Support\Facades\Auth;
 
-// コントローラー名には接尾辞の'Controllerをつけた方が良いのか、、'
+// コントローラー名には接尾辞の'Controllerをつけた方が良いのか、、
 class Applicant extends Controller
 {
 
@@ -16,7 +16,7 @@ class Applicant extends Controller
     }
 
     ModelsApplicant::create([
-      'post_id'   => $id,
+      'post_id' => $id,
       'user_id' => Auth::id(),
     ]);
 

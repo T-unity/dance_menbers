@@ -1,7 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', function () {
     return view('welcome');
     // return view('top'); // 差し替え用トップページ
@@ -23,6 +22,7 @@ Route::get('/posts/{post}', 'App\Http\Controllers\PostController@show' )->name('
 // 投稿機能
 
 // 応募機能
+// postリクエストで実行するには？
 Route::get('post/{id}/applicants', 'App\Http\Controllers\Applicant@store' )->name('post.applicants');
 // Route::get('post/{id}/unapply', 'App\Http\Controllers\Applicant@store' )->name('post.unapply');
 // 応募機能
