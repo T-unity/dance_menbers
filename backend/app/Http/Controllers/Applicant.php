@@ -14,24 +14,9 @@ use Illuminate\Support\Facades\Auth;
 class Applicant extends Controller
 {
 
-  public function is_applied( $id )
-  {
-    $user_id = Auth::id();
-    // $applied = ModelsApplicant::where('user_id', $user_id);
-    $query = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , $user_id);
-
-    foreach ( $query->get() as $res ){
-      if ( (int)$id === (int)$res->post_id ) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   public function store( $id )
   {
-    if ($this->is_applied($id) === false) {
+    if (ModelsApplicant::is_applied($id) === false) {
       return redirect()->back();
     }
 
