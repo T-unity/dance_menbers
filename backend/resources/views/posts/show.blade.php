@@ -1,3 +1,6 @@
+<a href="{{ route('top') }}">トップページ</a>
+<br>
+<a href="{{ route('posts.create') }}">投稿の新規作成</a>
 <h1>投稿詳細</h1>
 
 @if (session('successMessage'))
