@@ -14,6 +14,9 @@ class Applicant extends Model
       'post_id',
     ];
 
+    /**
+     * テーブル間のリレーション
+     */
     public function user()
     {
       return $this->hasMany('App\Models\User');

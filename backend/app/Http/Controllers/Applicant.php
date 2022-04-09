@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Auth;
 // コントローラー名には接尾辞の'Controllerをつけた方が良いのか、、'
 class Applicant extends Controller
 {
-  public function store( $id )
+
+  public function is_applied( $id )
   {
     $user_id = Auth::id();
     // $applied = ModelsApplicant::where('user_id', $user_id);
@@ -21,9 +22,17 @@ class Applicant extends Controller
 
     foreach ( $query->get() as $res ){
       if ( (int)$id === (int)$res->post_id ) {
-        var_dump('NG');
-        exit;
+        return false;
       }
+    }
+
+    return true;
+  }
+
+  public function store( $id )
+  {
+    if ($this->is_applied($id) === false) {
+      return redirect()->back();
     }
 
     ModelsApplicant::create([
@@ -34,8 +43,4 @@ class Applicant extends Controller
     return redirect()->back();
   }
 
-  // public function is_applied()
-  // {
-  //   //
-  // }
 }
