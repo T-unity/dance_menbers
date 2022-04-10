@@ -38,6 +38,19 @@ class ChatRoomController extends Controller
     // var_dump($id);
     // exit;
     // 値の到達を確認
+
+    $room = ChatRoom::find($id);
+
+    // var_dump($room->room_status);
+    // exit;
+
+    $room->room_status = 'active';
+
+    // var_dump($room->room_status);
+    // exit;
+
+    $room->save();
+    return redirect()->back()->with('successMessage', 'チャットリクエストを許可しました');
   }
 
 }

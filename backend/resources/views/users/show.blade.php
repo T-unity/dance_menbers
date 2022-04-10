@@ -59,7 +59,7 @@ else :
     }
   }
 
-  if ($received_user_id === Auth::id()) :
+  if ($room_status === 'await' && $received_user_id === Auth::id()) :
     ?>
     <br>
     <a href="{{ route('rooms.activate', ['id' => $room_id]) }}">許可する</a>
