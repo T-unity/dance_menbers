@@ -35,22 +35,18 @@ class ChatRoomController extends Controller
   }
 
   public function activate($id) {
-    // var_dump($id);
-    // exit;
-    // 値の到達を確認
-
     $room = ChatRoom::find($id);
-
-    // var_dump($room->room_status);
-    // exit;
-
     $room->room_status = 'active';
-
-    // var_dump($room->room_status);
-    // exit;
-
     $room->save();
+
     return redirect()->back()->with('successMessage', 'チャットリクエストを許可しました');
+  }
+
+  public function show()
+  {
+    // 一つのチャットルームに関連するユーザーは2名のみなので、
+    // 関連しないユーザーがURLベタ打ち等でログインを試みた場合はブロックする。
+    return view('users/messages/show');
   }
 
 }

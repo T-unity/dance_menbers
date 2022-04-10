@@ -68,6 +68,12 @@ else :
     <?php
   endif;
 
+  if ($room_status === 'active') :
+    ?>
+    <a href="{{ route('rooms.show', ['id' => $room_id]) }}">チャットを開く</a>
+    <?php
+  endif;
+
 endif;
 ?>
 
