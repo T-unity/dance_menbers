@@ -1,15 +1,87 @@
 @extends('base')
 @section('content')
 
+@if (session('successMessage'))
+  {{ session('successMessage') }}
+@endif
+
 <h1>ユーザー詳細</h1>
 
+<p>ユーザーID：<?= $user->id; ?></p>
+<p>ユーザー名：<?= $user->name; ?></p>
+
 <?php
-echo $user->id;
-echo $user->name;
+use App\Models\ChatRoom;
+use Illuminate\Support\Facades\Auth;
+
+// ここを決め打ちにすると微妙
+$to_res = \Illuminate\Support\Facades\DB::table('chat_rooms')->where([
+  ['requested_user_id', '=' , Auth::id()],
+  ['received_user_id',  '=' , $user->id],
+])->get();
+
+$from_res = \Illuminate\Support\Facades\DB::table('chat_rooms')->where([
+  ['requested_user_id', '=' , $user->id],
+  ['received_user_id',  '=' , Auth::id()],
+])->get();
+
+// echo '<pre>';
+// var_dump($to_res);
+// echo '<br>';
+// echo '====================';
+// var_dump($from_res);
+// echo '</pre>';
+// exit;
+
+// レコードが存在する場合、$res[0]->idでチャットルームのIDにアクセスできる
+if ( empty($to_res[0]->id) && empty($from_res[0]->id) ) :
+
+  if ($user->id !== Auth::id()) :
+  ?>
+  <a href="{{ route('rooms.request', ['id' => $user->id]) }}">チャットリクエストを送る</a>
+  <?php
+  endif;
+
+else :
+
+  // ユーザー間のチャットルームを特定
+  if (empty($to_res[0]->id)) {
+    $room_id = $from_res[0]->id;
+  } else {
+    $room_id = $to_res[0]->id;
+  }
+  $room    = ChatRoom::find($room_id);
+
+  // 制御に必要な情報を定義
+  $requested_user_id = $room->requested_user_id;
+  $received_user_id  = $room->received_user_id;
+  $room_status       = $room->room_status;
+
+  if ($room_status === 'await') {
+    if ($user->id === $received_user_id) {
+      echo $received_user_id . 'さんにチャットリクエストを送信しました';
+    } else {
+      echo $received_user_id . 'さんからチャットリクエストが届いています';
+    }
+  }
+
+endif;
 ?>
 
-<br>
+<!--
+■制御の条件
+※送る側視点
+・自分にはチャットリクエストを送れない
+・チャットルームが存在しない場合は、申請を送る事ができる
+・チャットルームが存在していて、ステータスがawaitの場合は「リクエスト申請済み」
+・チャットルームが存在していて、ステータスがactiveの場合は「DMを開く」
+・チャットルームが存在していて、ステータスが「denied」の場合は「現在この機能を利用できません」
 
-<a href="{{ route('rooms.request', ['id' => $user->id]) }}">メッセージリクエストを送る</a>
+※受け取る側視点
+・プロフィールを閲覧したユーザーが自分にリクエストを送信している場合は、「ユーザー名さんからチャットリクエストが届いています」のテキストと、承認or拒否のボタンを表示
+・承認した場合は、チャットルームがアクティブになってDM開始。
+・拒否した場合は、チャットルームが無効化される。
+  →一定期間経過後にレコード自体を削除して、もう一度申請を遅れるようにする？
+-->
 
 @endsection
