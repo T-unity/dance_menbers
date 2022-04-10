@@ -19,6 +19,8 @@ class ChatRoomController extends Controller
 
     // backend/resources/views/users/show.blade.phpのテンプレート内で行っている制御を関数化して、この中でバリデーションとして使用する。
     // ユーザーがリクエストを送信するタイミングが被った場合のハンドリングを追加する。// 現状だとどんな挙動になるのかわからない。
+    // 全レコードからrequested_user_idとreceived_user_idが重複するレコードがないかを捜査して、一致するレコードが存在する場合は「既に相手からあなた宛にチャットリクエストが送られています」みたいな表示を行う。
+    // もしくは、募集を投稿→応募→応募してきたユーザーに対してはDMを送信できる、みたいなロジックでも整合性がある。
 
     ChatRoom::create([
       'requested_user_id' => $requested_user_id,
