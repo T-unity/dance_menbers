@@ -11,9 +11,12 @@ use Illuminate\Support\Facades\Auth;
 
 <?php
 
+// $results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
+//   ['room_id', '=' , $room_id],
+// ])->get();
 $results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
   ['room_id', '=' , $room_id],
-])->get();
+])->orderByDesc('id')->get();
 
 // var_dump($results);
 // exit;
