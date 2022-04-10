@@ -14,7 +14,7 @@
 use App\Models\ChatRoom;
 use Illuminate\Support\Facades\Auth;
 
-// ここを決め打ちにすると微妙
+// この冗長な感じになるのはDB設計を見直した方が良い気がする。
 $to_res = \Illuminate\Support\Facades\DB::table('chat_rooms')->where([
   ['requested_user_id', '=' , Auth::id()],
   ['received_user_id',  '=' , $user->id],
@@ -24,14 +24,6 @@ $from_res = \Illuminate\Support\Facades\DB::table('chat_rooms')->where([
   ['requested_user_id', '=' , $user->id],
   ['received_user_id',  '=' , Auth::id()],
 ])->get();
-
-// echo '<pre>';
-// var_dump($to_res);
-// echo '<br>';
-// echo '====================';
-// var_dump($from_res);
-// echo '</pre>';
-// exit;
 
 // レコードが存在する場合、$res[0]->idでチャットルームのIDにアクセスできる
 if ( empty($to_res[0]->id) && empty($from_res[0]->id) ) :
@@ -62,11 +54,24 @@ else :
       echo $received_user_id . 'さんにチャットリクエストを送信しました';
     } else {
       echo $requested_user_id . 'さんからチャットリクエストが届いています';
+      echo '<br>';
+      echo 'リクエストを許可しますか？';
     }
   }
 
+  if ($received_user_id === Auth::id()) :
+    ?>
+    <br>
+    <a href="{{ route('rooms.activate', ['id' => $room_id]) }}">許可する</a>
+    <a href="">拒否する</a>
+    <br>
+    <?php
+  endif;
+
 endif;
 ?>
+
+@endsection
 
 <!--
 ■制御の条件
@@ -83,5 +88,3 @@ endif;
 ・拒否した場合は、チャットルームが無効化される。
   →一定期間経過後にレコード自体を削除して、もう一度申請を遅れるようにする？
 -->
-
-@endsection

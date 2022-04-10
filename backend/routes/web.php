@@ -28,7 +28,7 @@ Route::get('post/{id}/applicants', 'App\Http\Controllers\Applicant@store')->name
 // DM機能
 // chat_rooms
 Route::get('{id}/rooms', 'App\Http\Controllers\ChatRoomController@request')->name('rooms.request');
-// Route::post('rooms', 'App\Http\Controllers\ChatRoomController@request')->name('rooms.request');
+Route::get('rooms/{id}', 'App\Http\Controllers\ChatRoomController@activate')->name('rooms.activate');
 // chat_messages
 // Route::get('message', 'App\Http\Controllers\ChatMessageController@index')->name('message.request');
 // DM機能

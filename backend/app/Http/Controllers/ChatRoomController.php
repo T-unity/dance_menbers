@@ -34,4 +34,10 @@ class ChatRoomController extends Controller
     return redirect()->back()->with('successMessage', 'チャットの申請をしました');
   }
 
+  public function activate($id) {
+    // var_dump($id);
+    // exit;
+    // 値の到達を確認
+  }
+
 }
