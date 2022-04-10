@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ChatMessage;
 use Illuminate\Support\Facades\Auth;
 
 ?>
@@ -8,11 +9,28 @@ use Illuminate\Support\Facades\Auth;
 
 <h1>DM画面</h1>
 
+<?php
+
+$results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
+  ['room_id', '=' , $room_id],
+])->get();
+
+// var_dump($results);
+// exit;
+
+?>
+
 <div>
   <p>ここにメッセージ一覧を表示</p>
   <p>要素の配置的には、画面いっぱいにメッセージボックスを配置してposition absoluteでテキスト入力フォームを画面最下部に固定すればよさそう。
   </p>
   <p>メッセージの送信、取得は非同期で行うのが良さげ。</p>
+
+  <?php
+  foreach ($results as $res) {
+    echo $res->content;
+  }
+  ?>
 </div>
 
 <form action="{{ route('message.store') }}" method="post">
