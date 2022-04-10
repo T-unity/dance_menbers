@@ -1,3 +1,7 @@
+<?php
+
+use Illuminate\Support\Facades\Auth;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,11 +12,6 @@
   <!-- CSS -->
   <link rel="stylesheet" href="{{ asset('static/style.css') }}">
 
-  <!-- web font -->
-  <!-- <link rel="preconnect" href="https://fonts.googleapis.com"> -->
-  <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP&display=swap" rel="stylesheet"> -->
-
   <title>Document</title>
   <style>
     body {
@@ -21,6 +20,7 @@
   </style>
 </head>
 <body>
+  <?= Auth::id() ?>
   @yield('content')
 </body>
 </html>

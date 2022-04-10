@@ -21,10 +21,11 @@ $results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
 ?>
 
 <div>
-  <p>ここにメッセージ一覧を表示</p>
-  <p>要素の配置的には、画面いっぱいにメッセージボックスを配置してposition absoluteでテキスト入力フォームを画面最下部に固定すればよさそう。
-  </p>
-  <p>メッセージの送信、取得は非同期で行うのが良さげ。</p>
+  <!--
+    ここにメッセージ一覧を表示
+    要素の配置的には、画面いっぱいにメッセージボックスを配置してposition absoluteでテキスト入力フォームを画面最下部に固定すればよさそう。
+    メッセージの送信、取得は非同期で行う。
+  -->
 
   <?php
   foreach ($results as $res) {
