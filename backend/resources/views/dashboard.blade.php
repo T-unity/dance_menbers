@@ -9,6 +9,7 @@ use App\Models\Post;
 $own_posts      = \Illuminate\Support\Facades\DB::table('posts')->where('user_id', '=' , Auth::id())->orderByDesc('id')->get();
 // $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , Auth::id())->get();
 $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , Auth::id())->orderByDesc('id')->get();
+$notifications  = \Illuminate\Support\Facades\DB::table('notice_applicants')->where('posted_user_id', '=' , Auth::id())->orderByDesc('id')->get();
 ?>
 
 <h1>ダッシュボード</h1>
@@ -24,6 +25,20 @@ $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('us
   {{ __('Log Out') }}
 </a>
 </form>
+
+<h2>通知一覧</h2>
+
+<!-- 最終的な出力内容は、「user_nameさんが、post_idに応募しました」のようなテキストを想定 -->
+
+<?php
+// var_dump($notifications);
+foreach ($notifications as $notice) {
+  // idではなくユーザー名と投稿名で表示してかつリンクにする。
+  ?>
+  <p><?= $notice->apply_user_id ?>さんが<?= $notice->post_id ?>の投稿に応募しました</p>
+  <?php
+}
+?>
 
 <h2>自分の募集一覧</h2>
 
