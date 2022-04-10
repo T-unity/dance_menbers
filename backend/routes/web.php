@@ -27,11 +27,12 @@ Route::get('post/{id}/applicants', 'App\Http\Controllers\Applicant@store')->name
 
 // DM機能
 // chat_rooms
+// Authの制限全くかけていなかったのでミドルウェア経由させる。
 Route::get('{id}/rooms', 'App\Http\Controllers\ChatRoomController@request')->name('rooms.request');
 Route::get('rooms/{id}', 'App\Http\Controllers\ChatRoomController@activate')->name('rooms.activate');
 Route::get('room/{id}', 'App\Http\Controllers\ChatRoomController@show')->name('rooms.show');
 // chat_messages
-// Route::get('message', 'App\Http\Controllers\ChatMessageController@index')->name('message.request');
+Route::post('message', 'App\Http\Controllers\ChatMessageController@store')->name('message.store');
 // DM機能
 
 // プロフィール

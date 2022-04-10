@@ -42,11 +42,16 @@ class ChatRoomController extends Controller
     return redirect()->back()->with('successMessage', 'チャットリクエストを許可しました');
   }
 
-  public function show()
+  public function show( $id )
   {
+
+    // var_dump($id);
+    // exit;
     // 一つのチャットルームに関連するユーザーは2名のみなので、
     // 関連しないユーザーがURLベタ打ち等でログインを試みた場合はブロックする。
-    return view('users/messages/show');
+    return view('users/messages/show', [
+      'room_id' => $id,
+    ]);
   }
 
 }
