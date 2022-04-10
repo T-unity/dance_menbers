@@ -61,7 +61,7 @@ else :
     if ($user->id === $received_user_id) {
       echo $received_user_id . 'さんにチャットリクエストを送信しました';
     } else {
-      echo $received_user_id . 'さんからチャットリクエストが届いています';
+      echo $requested_user_id . 'さんからチャットリクエストが届いています';
     }
   }
 

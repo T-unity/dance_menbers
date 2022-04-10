@@ -22,6 +22,9 @@ class ChatRoomController extends Controller
       return;
     }
 
+    // backend/resources/views/users/show.blade.phpのテンプレート内で行っている制御を関数化して、この中でバリデーションとして使用する。
+    // ユーザーがリクエストを送信するタイミングが被った場合のハンドリングを追加する。// 現状だとどんな挙動になるのかわからない。
+
     ChatRoom::create([
       'requested_user_id' => $requested_user_id,
       'received_user_id' => $received_user_id,
