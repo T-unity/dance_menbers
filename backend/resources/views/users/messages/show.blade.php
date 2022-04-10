@@ -30,6 +30,7 @@ $results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
   <?php
   foreach ($results as $res) {
     echo $res->content;
+    echo '<br>';
   }
   ?>
 </div>
