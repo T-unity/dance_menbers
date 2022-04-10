@@ -20,7 +20,7 @@ $results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
 
 ?>
 
-<div>
+<div class="chat_message--container">
   <!--
     ここにメッセージ一覧を表示
     要素の配置的には、画面いっぱいにメッセージボックスを配置してposition absoluteでテキスト入力フォームを画面最下部に固定すればよさそう。
@@ -29,8 +29,11 @@ $results = \Illuminate\Support\Facades\DB::table('chat_messages')->where([
 
   <?php
   foreach ($results as $res) {
-    echo $res->content;
-    echo '<br>';
+    ?>
+    <div class="chat_message--wrap">
+      <p><?= $res->content; ?></p>
+    </div>
+    <?php
   }
   ?>
 </div>

@@ -22,3 +22,12 @@ body {
 .fs-10 {
   font-size: 10px;
 }
+.chat_message--container{
+  width: 90%;
+  margin: 0 auto;
+}
+.chat_message--wrap {
+  background-color: #fff;
+  margin: 1%;
+  padding: 1%;
+}
