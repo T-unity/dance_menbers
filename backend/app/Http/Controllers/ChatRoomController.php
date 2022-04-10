@@ -44,14 +44,16 @@ class ChatRoomController extends Controller
 
   public function show( $id )
   {
+    $room = ChatRoom::find($id);
 
-    // var_dump($id);
-    // exit;
-    // 一つのチャットルームに関連するユーザーは2名のみなので、
-    // 関連しないユーザーがURLベタ打ち等でログインを試みた場合はブロックする。
-    return view('users/messages/show', [
-      'room_id' => $id,
-    ]);
+    if (Auth::id() === $room->requested_user_id || Auth::id() === $room->received_user_id ) {
+      return view('users/messages/show', [
+        'room_id' => $id,
+      ]);
+    } else {
+      return;
+    }
+
   }
 
 }
