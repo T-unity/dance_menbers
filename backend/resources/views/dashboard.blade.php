@@ -39,22 +39,45 @@ foreach ($notifications as $notice) {
   <?php
 }
 ?>
+<div class="dashboard__wrapper">
+  <div class="dashboard__parts--wrapper">
+    <h2>自分の募集一覧</h2>
+    <?php foreach ($own_posts as $post) :?>
+      <div class="dashboard__parts">
+        <a href="<?= route('posts.show', $post->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $post->id; ?></span>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <div class="dashboard__parts--wrapper">
+    <h2>過去に応募した募集</h2>
+    <?php
+    foreach ($own_applicants as $apply) :
+      $post = Post::find($apply->post_id);
+    ?>
+      <div class="dashboard__parts">
+        <a href="<?= route('posts.show', $apply->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $apply->id; ?></span>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</div>
 
-<h2>自分の募集一覧</h2>
-
-<?php foreach ($own_posts as $post) :?>
-  <a href="<?= route('posts.show', $post->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $post->id; ?></span>
-  <br>
-<?php endforeach; ?>
-
-<h2>過去に応募した募集</h2>
-
-<?php
-foreach ($own_applicants as $apply) :
-  $post = Post::find($apply->post_id);
-?>
-  <a href="<?= route('posts.show', $apply->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $apply->id; ?></span>
-  <br>
-<?php endforeach; ?>
 
 @endsection
+
+<style>
+  .dashboard__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    padding: 3%;
+  }
+  .dashboard__parts--wrapper {
+    background-color: #fff;
+    width: 30%;
+    padding: 1% 2%;
+    margin: 2%;
+  }
+  .dashboard__parts {
+    margin: 1% auto;
+  }
+</style>
