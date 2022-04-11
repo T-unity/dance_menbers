@@ -63,21 +63,3 @@ foreach ($notifications as $notice) {
 
 
 @endsection
-
-<style>
-  .dashboard__wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: start;
-    padding: 3%;
-  }
-  .dashboard__parts--wrapper {
-    background-color: #fff;
-    width: 30%;
-    padding: 1% 2%;
-    margin: 2%;
-  }
-  .dashboard__parts {
-    margin: 1% auto;
-  }
-</style>

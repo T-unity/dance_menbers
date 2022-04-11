@@ -31,3 +31,19 @@ body {
   margin: 1%;
   padding: 1%;
 }
+.dashboard__wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  padding: 3%;
+}
+.dashboard__parts--wrapper {
+  background-color: #fff;
+  width: 30%;
+  padding: 1% 2%;
+  margin: 2%;
+  box-shadow: 5px 5px 2px 0 rgba(168, 168, 168, .5);
+}
+.dashboard__parts {
+  margin: 1% auto;
+}
