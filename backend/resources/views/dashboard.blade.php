@@ -4,12 +4,18 @@
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Post;
+use App\Models\User;
 
 // $own_posts      = \Illuminate\Support\Facades\DB::table('posts')->where('user_id', '=' , Auth::id())->get();
 $own_posts      = \Illuminate\Support\Facades\DB::table('posts')->where('user_id', '=' , Auth::id())->orderByDesc('id')->get();
 // $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , Auth::id())->get();
 $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('user_id', '=' , Auth::id())->orderByDesc('id')->get();
-$notifications  = \Illuminate\Support\Facades\DB::table('notice_applicants')->where('posted_user_id', '=' , Auth::id())->orderByDesc('id')->get();
+
+// 通知機能
+// 自分が持つ過去の募集をオブジェクトで取得
+$notifications = \Illuminate\Support\Facades\DB::table('notice_applicants')->where('posted_user_id', '=' , Auth::id())->orderByDesc('id')->get();
+//
+
 ?>
 
 <h1>ダッシュボード</h1>
@@ -22,20 +28,18 @@ $notifications  = \Illuminate\Support\Facades\DB::table('notice_applicants')->wh
     onclick="event.preventDefault();
     this.closest('form').submit();"
   >
-  {{ __('Log Out') }}
-</a>
+    {{ __('Log Out') }}
+  </a>
 </form>
 
 <h2>通知一覧</h2>
 
-<!-- 最終的な出力内容は、「user_nameさんが、post_idに応募しました」のようなテキストを想定 -->
-
 <?php
-// var_dump($notifications);
 foreach ($notifications as $notice) {
-  // idではなくユーザー名と投稿名で表示してかつリンクにする。
+  $applied_user = User::find($notice->apply_user_id);
+  $post = Post::find($notice->post_id);
   ?>
-  <p><?= $notice->apply_user_id ?>さんが<?= $notice->post_id ?>の投稿に応募しました</p>
+  <p><a href="<?= route('user.show', $notice->apply_user_id) ?>"><?= $applied_user->name ?></a> さんが <a href=" <?= route('posts.show', $notice->post_id) ?>"><?= $post->title ?></a> に応募しました</p>
   <?php
 }
 ?>
