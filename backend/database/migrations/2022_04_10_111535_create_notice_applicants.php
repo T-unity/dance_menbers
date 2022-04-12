@@ -18,6 +18,7 @@ class CreateNoticeApplicants extends Migration
             $table->integer('apply_user_id');
             $table->integer('post_id');
             $table->integer('posted_user_id');
+            $table->boolean('is_checked')->default(false);
             $table->timestamps();
         });
     }
