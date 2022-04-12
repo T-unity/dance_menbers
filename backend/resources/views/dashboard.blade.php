@@ -14,8 +14,6 @@ $own_applicants = \Illuminate\Support\Facades\DB::table('applicants')->where('us
 // 通知機能
 // 自分が持つ過去の募集をオブジェクトで取得
 $notifications = \Illuminate\Support\Facades\DB::table('notice_applicants')->where('posted_user_id', '=' , Auth::id())->orderByDesc('id')->get();
-//
-
 ?>
 
 <h1>ダッシュボード</h1>
@@ -56,14 +54,15 @@ foreach ($notifications as $notice) {
     <h2>過去に応募した募集</h2>
     <?php
     foreach ($own_applicants as $apply) :
+      // ここの$applyに入っている値が意図したものになっているか要確認。
+      // own_applicantsで応募テーブルから自分が応募した投稿を全部とってきて、そこから投稿テーブルのIDを特定したい。
       $post = Post::find($apply->post_id);
     ?>
       <div class="dashboard__parts">
-        <a href="<?= route('posts.show', $apply->id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $apply->id; ?></span>
+        <a href="<?= route('posts.show', $apply->post_id) ?>"><?= $post->title; ?></a><span class="fs-10"><?= $apply->post_id; ?></span>
       </div>
     <?php endforeach; ?>
   </div>
 </div>
-
 
 @endsection
