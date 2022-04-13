@@ -1,3 +1,5 @@
+@extends('base')
+@section('content')
 
 <h1>投稿作成</h1>
 
@@ -10,3 +12,5 @@
   <button type="submit">送信する</button>
 
 </form>
+
+@endsection
