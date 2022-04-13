@@ -19,7 +19,6 @@ $to_res = \Illuminate\Support\Facades\DB::table('chat_rooms')->where([
   ['requested_user_id', '=' , Auth::id()],
   ['received_user_id',  '=' , $user->id],
 ])->get();
-
 $from_res = \Illuminate\Support\Facades\DB::table('chat_rooms')->where([
   ['requested_user_id', '=' , $user->id],
   ['received_user_id',  '=' , Auth::id()],
@@ -78,19 +77,3 @@ endif;
 ?>
 
 @endsection
-
-<!--
-■制御の条件
-※送る側視点
-・自分にはチャットリクエストを送れない
-・チャットルームが存在しない場合は、申請を送る事ができる
-・チャットルームが存在していて、ステータスがawaitの場合は「リクエスト申請済み」
-・チャットルームが存在していて、ステータスがactiveの場合は「DMを開く」
-・チャットルームが存在していて、ステータスが「denied」の場合は「現在この機能を利用できません」
-
-※受け取る側視点
-・プロフィールを閲覧したユーザーが自分にリクエストを送信している場合は、「ユーザー名さんからチャットリクエストが届いています」のテキストと、承認or拒否のボタンを表示
-・承認した場合は、チャットルームがアクティブになってDM開始。
-・拒否した場合は、チャットルームが無効化される。
-  →一定期間経過後にレコード自体を削除して、もう一度申請を遅れるようにする？
--->
