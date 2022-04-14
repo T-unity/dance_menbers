@@ -7,18 +7,15 @@
   {{ session('successMessage') }}
 @endif
 
-<?php
+<p>タイトル：<?= $post->title; ?></a></p>
+<p>本文：<?= $post->content; ?></a></p>
+<p>投稿者：<a href="<?= route('user.show', ['id' => $user->id]) ?>"><?= $user->name; ?></a></p>
 
-echo $post->title;
-echo '<br>';
-echo $post->content;
-echo '<br>';
-echo $user->name;
-
-use App\Models\Applicant as ModelsApplicant;
-?>
 <br>
-<?php if (ModelsApplicant::is_applied($post->id) === false
+
+<?php
+use App\Models\Applicant as ModelsApplicant;
+    if (ModelsApplicant::is_applied($post->id) === false
       && ModelsApplicant::is_owned($post->id) === false): ?>
   <a href="{{ route('post.applicants', ['id' => $post->id]) }}">応募する</a>
 <?php elseif (ModelsApplicant::is_owned($post->id)):
