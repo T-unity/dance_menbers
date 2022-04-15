@@ -14,6 +14,7 @@ require __DIR__.'/auth.php';
 
 // SQLの練習用ファイル
 Route::get('/sql', 'App\Http\Controllers\SqlController@some')->name('sql');
+Route::post('/sql', 'App\Http\Controllers\SqlController@some')->name('sql');
 // SQLの練習用ファイル
 
 // 投稿機能
