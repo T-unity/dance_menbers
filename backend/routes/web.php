@@ -12,6 +12,10 @@ Route::get('/dashboard', function () {
 
 require __DIR__.'/auth.php';
 
+// SQLの練習用ファイル
+Route::get('/sql', 'App\Http\Controllers\SqlController@some')->name('sql');
+// SQLの練習用ファイル
+
 // 投稿機能
 Route::get('/posts', 'App\Http\Controllers\PostController@index')->name('posts.index');
 Route::get('/posts/create', 'App\Http\Controllers\PostController@create' )->middleware(['auth'])->name('posts.create');
