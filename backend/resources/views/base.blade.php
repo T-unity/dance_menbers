@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\Auth;
   <a href="{{ route('posts.index') }}">投稿一覧</a>
   <br>
   <a href="{{ route('posts.create') }}">投稿の新規作成</a>
+  <br>
+  <a href="{{ route('sql') }}">投稿の新規作成 / PDO使用</a>
   @yield('content')
 </body>
 </html>
