@@ -43,3 +43,8 @@ Route::post('message', 'App\Http\Controllers\ChatMessageController@store')->name
 // プロフィール
 Route::get('user/{id}', 'App\Http\Controllers\UserController@show')->name('user.show');
 // プロフィール
+
+
+// パフォーマンス測定用
+Route::get('user/', 'App\Http\Controllers\UserController@index')->name('users.index');
+Route::get('sql_user/', 'App\Http\Controllers\SqlController@index')->name('users.sql');
