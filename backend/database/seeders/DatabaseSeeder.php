@@ -24,6 +24,19 @@ class DatabaseSeeder extends Seeder
       //   'password' => Hash::make('password'),
       // ]);
 
-      User::factory()->count(1000)->create();
+      // 1,000件
+      // User::factory()->count(1000)->create();
+      // 10,000件
+      // User::factory()->count(10000)->create();
+      // 100,000件
+      // User::factory()->count(100000)->create();
+      // 1,000,000件
+      // User::factory()->count(1000000)->create();
+      // 10,000,000件
+      // User::factory()->count(10000000)->create();
+      // 100,000,000件
+      // User::factory()->count(100000000)->create();
+      // 1,000,000,000件
+      // User::factory()->count(1000000000)->create();
     }
 }
