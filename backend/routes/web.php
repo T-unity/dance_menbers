@@ -14,6 +14,7 @@ require __DIR__.'/auth.php';
 
 // プロフィール
 Route::get('user/{id}', 'App\Http\Controllers\UserController@show')->name('user.show');
+Route::get('users', 'App\Http\Controllers\UserController@index')->name('users.index');
 // プロフィール
 
 // 投稿機能
