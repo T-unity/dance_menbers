@@ -7,7 +7,18 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-  public function index()
+  public function show( $id )
+  {
+    return view('users/show', [
+      'user' => User::find($id)
+    ]);
+  }
+
+
+  /**
+   * 全件取得のパフォーマンス計測用メソッド
+   */
+  public function performance()
   {
     $start = hrtime(true); // 計測開始時間
 
@@ -24,11 +35,5 @@ class UserController extends Controller
     echo '処理時間:'. $micro_sec .'マイクロ秒' . '<br>';
     echo '処理時間:'. $milli_sec .'ミリ秒' . '<br>';
     echo '処理時間:'. $sec .'秒' . '<br>';
-  }
-  public function show( $id )
-  {
-    return view('users/show', [
-      'user' => User::find($id)
-    ]);
   }
 }

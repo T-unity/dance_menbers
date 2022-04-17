@@ -12,10 +12,9 @@ Route::get('/dashboard', function () {
 
 require __DIR__.'/auth.php';
 
-// SQLの練習用ファイル
-Route::get('/sql', 'App\Http\Controllers\SqlController@some')->name('sql');
-Route::post('/sql', 'App\Http\Controllers\SqlController@insert');
-// SQLの練習用ファイル
+// プロフィール
+Route::get('user/{id}', 'App\Http\Controllers\UserController@show')->name('user.show');
+// プロフィール
 
 // 投稿機能
 Route::get('/posts', 'App\Http\Controllers\PostController@index')->name('posts.index');
@@ -40,11 +39,14 @@ Route::get('room/{id}', 'App\Http\Controllers\ChatRoomController@show')->name('r
 Route::post('message', 'App\Http\Controllers\ChatMessageController@store')->name('message.store');
 // DM機能
 
-// プロフィール
-Route::get('user/{id}', 'App\Http\Controllers\UserController@show')->name('user.show');
-// プロフィール
 
+//////////////////////////
+/// 以下は運用とは関係ない
+
+// SQLの練習用ファイル
+Route::get('/sql', 'App\Http\Controllers\SqlController@some')->name('sql');
+Route::post('/sql', 'App\Http\Controllers\SqlController@insert');
 
 // パフォーマンス測定用
-Route::get('user/', 'App\Http\Controllers\UserController@index')->name('users.index');
-Route::get('sql_user/', 'App\Http\Controllers\SqlController@index')->name('users.sql');
+Route::get('user_performance/', 'App\Http\Controllers\UserController@performance')->name('users_pref.index');
+Route::get('sql_user_performance/', 'App\Http\Controllers\SqlController@index')->name('users.sql');
