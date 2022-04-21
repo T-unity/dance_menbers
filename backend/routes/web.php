@@ -2,8 +2,8 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-    // return view('top'); // 差し替え用トップページ
+    // return view('welcome');
+    return view('top'); // 差し替え用トップページ
 })->name('top');
 
 Route::get('/dashboard', function () {

@@ -18,18 +18,6 @@ $notifications = \Illuminate\Support\Facades\DB::table('notice_applicants')->whe
 
 <h1>ダッシュボード</h1>
 
-<p>Sign in as <?= Auth::user()->name; ?></p>
-
-<form method="POST" action="{{ route('logout') }}">
-  @csrf
-  <a href="route('logout')"
-    onclick="event.preventDefault();
-    this.closest('form').submit();"
-  >
-    {{ __('Log Out') }}
-  </a>
-</form>
-
 <h2>通知一覧</h2>
 
 <?php
