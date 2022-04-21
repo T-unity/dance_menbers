@@ -6,7 +6,7 @@
 <form action="{{ route('posts.store') }}" method="post">
   @csrf
   <input class="form__post-title" name="title" type="text" placeholder="タイトル">
-  <textarea class="form__post-content" cols="40" rows="8" name="content" type="text" placeholder="本文を入力"></textarea>
+  <textarea id="post_create_form" class="form__post-content" cols="40" rows="8" name="content" type="text" placeholder="本文を入力"></textarea>
 
   <div class="form__post-btn__wrapper">
     <button class="form__post-submit" type="submit">送信する</button>
@@ -48,3 +48,8 @@
     font-weight: 600;
   }
 </style>
+
+<script>
+  const target = document.getElementById('post_create_form');
+  console.log(target);
+</script>
