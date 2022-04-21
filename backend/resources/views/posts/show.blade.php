@@ -31,14 +31,3 @@ if (ModelsApplicant::is_applied($post->id) === false
 <?php endif; ?>
 
 @endsection
-
-<style>
-  .applicant a {
-  border: solid 1px;
-  border-radius: 3px;
-  padding: 2px 1%;
-  text-decoration: none;
-  color: inherit;
-  background-color: #fff;
-}
-</style>

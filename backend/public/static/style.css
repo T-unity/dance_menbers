@@ -96,3 +96,14 @@ ul li a {
 .dashboard__parts {
   margin: 1% auto;
 }
+
+
+/* Show Post */
+.applicant a {
+  border: solid 1px;
+  border-radius: 3px;
+  padding: 2px 1%;
+  text-decoration: none;
+  color: inherit;
+  background-color: #fff;
+}
