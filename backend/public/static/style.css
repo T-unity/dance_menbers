@@ -51,10 +51,8 @@ ul li a {
 .globalNav .contents__wrap li {
   margin-right: 0%;
 }
-
-
-/* posts */
 .container {
+  padding-top: 100px;
   width: 80%;
   margin: 0 auto;
 }
@@ -62,11 +60,20 @@ ul li a {
   text-decoration: none;
   color: inherit;
 }
+
+
+/* posts */
 .posts_wrapper {
   width: calc(100% - 80px);
   background-color: #fff;
   margin: 1%;
   padding: 1%;
+  transition: all 0.3s ease-out;
+}
+.posts_wrapper:hover {
+  box-shadow: 3px 5px 2px 0 rgba(0, 0, 0, 0.3), -3px 5px 2px 0 rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease-out;
 }
 .fs-10 {
   font-size: 10px;

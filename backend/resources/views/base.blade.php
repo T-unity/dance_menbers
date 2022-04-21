@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +17,8 @@
 </head>
 <body>
   @extends('header')
-  @yield('content')
+  <div class="container">
+    @yield('content')
+  </div>
 </body>
 </html>

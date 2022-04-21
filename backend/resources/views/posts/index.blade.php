@@ -9,7 +9,7 @@ foreach ( $posts as $post ) :
   $user = User::find( $post->user_id );
   ?>
 
-<div class="container">
+<div class="posts__container">
   <a href="<?= route('posts.show', $post->id) ?>">
     <div class="posts_wrapper">
       <div class="post_title">
@@ -29,4 +29,3 @@ foreach ( $posts as $post ) :
 <?php endforeach; ?>
 
 @endsection
-
