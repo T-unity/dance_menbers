@@ -14,6 +14,13 @@
 
 </form>
 
+
+<script>
+  const target = document.getElementById('post_create_form')
+  console.log(target)
+</script>
+
+
 @endsection
 
 <style>
@@ -48,8 +55,3 @@
     font-weight: 600;
   }
 </style>
-
-<script>
-  const target = document.getElementById('post_create_form');
-  console.log(target);
-</script>
