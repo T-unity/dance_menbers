@@ -114,3 +114,61 @@ ul li a {
   color: inherit;
   background-color: #fff;
 }
+
+
+/* posts.create */
+.form__post-title {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 3px;
+  border: 2px solid #ddd;
+}
+.form__post-content {
+  margin-top: 3%;
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 3px;
+  border: 2px solid #ddd;
+  font-size: 14px;
+}
+.form__post-btn__wrapper {
+  padding-top: 5%;
+  text-align: center;
+}
+.form__post-submit {
+  color: rgba(255, 255, 255, 1);
+  background-color: rgba(105, 162, 255, .8);
+  border-radius: 5px;
+  border: none;
+  padding: 15px 30px;
+  width: 180px;
+  height: 55px;
+  font-size: 19px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* confirm */
+.conf-post__wrap {
+  display: none;
+}
+.conf-modal__overlay {
+  position: absolute;
+  background-color: rgba(200, 200, 200, .8);
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 9;
+}
+.conf-post__content {
+  position: fixed;
+  z-index: 99;
+  background-color: rgba(255, 255, 255, 1);
+  left: 10%;
+  right: 10%;
+  top: 10%;
+  bottom: 10%;
+}
