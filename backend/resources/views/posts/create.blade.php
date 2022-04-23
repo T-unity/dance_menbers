@@ -28,23 +28,27 @@
 </form>
 
 <script>
-  const btn = document.getElementById('conf-post__btn')
-  const modal = document.getElementById('conf-modal')
-  const title = document.getElementById('form__post-title')
-  const content = document.getElementById('form__post-content')
-  const confirmTitle = document.getElementById('conf-title')
-  const confirmContent = document.getElementById('conf-content')
+  // https://developer.mozilla.org/ja/docs/Learn/JavaScript/Objects/Basics
 
-  btn.addEventListener('click', () => {
-    modal.style.display = 'block'
-    confirmTitle.innerHTML = title.value
-    confirmContent.innerHTML = content.value
+  const confirm = {
+    btn:         document.getElementById('conf-post__btn'),
+    modal:       document.getElementById('conf-modal'),
+    titleForm:   document.getElementById('form__post-title'),
+    contentForm: document.getElementById('form__post-content'),
+    titleBody:   document.getElementById('conf-title'),
+    contentBody: document.getElementById('conf-content'),
+  }
+
+  confirm.btn.addEventListener('click', () => {
+    confirm.modal.style.display   = 'block'
+    confirm.titleBody.innerHTML   = titleForm.value
+    confirm.contentBody.innerHTML = contentForm.value
   })
 
   const closeBtn = document.querySelectorAll('.js-close-modal')
   closeBtn.forEach((btn) => {
     btn.addEventListener('click', () => {
-      modal.style.display = 'none'
+      confirm.modal.style.display = 'none'
     })
   })
 </script>
