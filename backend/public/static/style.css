@@ -64,6 +64,7 @@ ul li a {
 
 /* posts */
 .posts_wrapper {
+  box-shadow: 2px 3px 1px 0 rgba(0, 0, 0, .1), -2px 3px 1px 0 rgba(0, 0, 0, .1);
   width: calc(100% - 80px);
   background-color: #fff;
   margin: 1%;

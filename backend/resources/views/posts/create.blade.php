@@ -40,9 +40,12 @@
   }
 
   confirm.btn.addEventListener('click', () => {
+
+    // フォームの値が不正だった時の制御をクライアント側でも入れる。
+
     confirm.modal.style.display   = 'block'
-    confirm.titleBody.innerHTML   = titleForm.value
-    confirm.contentBody.innerHTML = contentForm.value
+    confirm.titleBody.innerHTML   = confirm.titleForm.value
+    confirm.contentBody.innerHTML = confirm.contentForm.value
   })
 
   const closeBtn = document.querySelectorAll('.js-close-modal')
