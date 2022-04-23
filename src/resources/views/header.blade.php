@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Auth;
                 </a>
               </form>
             </li>
-            <li><a href="{{ route('dashboard') }}"><?= Auth::user()->name; ?></a></li>
           </ul>
         </div>
       </div>
