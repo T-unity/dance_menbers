@@ -1,0 +1,3 @@
+version: "3.9"
+# 本番用docker-compose.yml
+# 後ほど記述するが一先ずファイルの追加のみ。
