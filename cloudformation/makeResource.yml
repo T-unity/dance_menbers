@@ -43,6 +43,11 @@ Parameters:
     Type: String
     Default: 10.99.21.0/24
 
+# Cluster名を入力する
+  ClusterName:
+    Description: Please enter the Cluster name
+    Type: String
+
 #======================
 # リソース
 #======================
@@ -200,3 +205,10 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnet2
+#======================
+##### ECS作成 #####
+#======================
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref ClusterName
