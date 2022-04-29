@@ -1,15 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: |
-
 Resources:
-  LogicalID:
+  TakadaMakeVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: "String" # Required
-      EnableDnsHostnames: false
-      EnableDnsSupport: false
-      InstanceTenancy: "String"
-      Ipv4IpamPoolId: "String"
-      Ipv4NetmaskLength: Number
+      CidrBlock: 10.0.8.0/21
+      EnableDnsSupport: true
       Tags:
-        Tags
+        - Key: Name
+          Value: TakadaCFTest
