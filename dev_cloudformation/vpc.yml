@@ -8,3 +8,13 @@ Resources:
       Tags:
         - Key: Name
           Value: TakadaCFTest
+  subnetName:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: "ap-northeast-1a"
+      # VPC作成の論理IDを!Refで指定
+      VpcId: !Ref TakadaMakeVPC
+      CidrBlock: 10.0.8.0/24
+      Tags:
+        - Key: Name
+          Value: Subnet1FromTakadaCFTest
