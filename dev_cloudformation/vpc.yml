@@ -1,16 +1,15 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: |
-  
-Parameters:
-  
-Metadata:
-  
-Mappings:
-  
-Conditions:
-  
+
 Resources:
-  
-Transform:
-  
-Outputs:
+  LogicalID:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "String" # Required
+      EnableDnsHostnames: false
+      EnableDnsSupport: false
+      InstanceTenancy: "String"
+      Ipv4IpamPoolId: "String"
+      Ipv4NetmaskLength: Number
+      Tags:
+        Tags
