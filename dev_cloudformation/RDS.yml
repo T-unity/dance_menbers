@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: CloudTechDemo
+
+# パラメータを指定。値の実体はrds.cfgが保持。
+Parameters:
+  DatabasePassword:
+    Type: String
+    Description: Database password
+    NoEcho: "true"
+  ApplicationSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Target subnets
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Target VPC
+  DBinboundCidrIPs:
+    Type: String
+    Description: SecurityGroupInboundIP
+
+Resources:
+
+  # RDSを作成
+  TakadaMakeRDS:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: MySQL
+      EngineVersion: 5.7
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 10
+      StorageType: gp2
+      MasterUsername: TakadaTestDataBase
+      MasterUserPassword:
+        # rds.cfgに記載したパスワードを取得する
+        Ref: DatabasePassword
+      DBName: TakadaTestDataBase
+      VPCSecurityGroups:
+        - !Ref TakadaMakeRDSSG
+      DBSubnetGroupName: !Ref TakadaMakeRDSSubnet
+      MultiAZ: "false"
+      # ${AWS::Region}→コマンドを実行したリージョンが入るので、変な事しなければ`ap-northeast-1a`になるはず。
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db
+
+  # サブネットを作成
+  TakadaMakeRDSSubnet:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Application Database Subnet Group
+      SubnetIds: !Ref ApplicationSubnets # rds.cfgから取得
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-subnet-group
+
+  # セキュリティグループを作成
+  TakadaMakeRDSSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName} Application Database Security Group
+      VpcId: !Ref VpcId
+      # インバウンドの通信に関連する設定
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        CidrIp: !Ref DBinboundCidrIPs # rds.cfgから取得
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-sg
