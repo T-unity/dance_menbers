@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  TakadaMakeEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      # 使用するキーペアを指定
+      KeyName: test-admin
+      # AMI IDを指定
+      ImageId: ami-0bcc04d20228d0cf6
+      InstanceType: t3.micro
+      Monitoring: false
+      # VPC作成のテンプレートファイルでエクスポートしたSGを指定
+      SecurityGroupIds:
+        - !ImportValue GetTakadaSG
+      SubnetId: !ImportValue GetTakadaSubnet
+      Tags:
+        - Key: Name
+          Value: TakadaMakeEC2

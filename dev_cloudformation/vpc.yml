@@ -8,7 +8,7 @@ Resources:
       EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: TakadaCFTest
+          Value: TakadaVPC
   # subnetを作成
   TakadaMakeSubnet:
     Type: AWS::EC2::Subnet
@@ -19,7 +19,7 @@ Resources:
       CidrBlock: 10.0.8.0/24
       Tags:
         - Key: Name
-          Value: Subnet1FromTakadaCFTest
+          Value: TakadaSubnet
   # セキュリティグループを作成
   TakadaMakeSG:
     Type: AWS::EC2::SecurityGroup
@@ -37,7 +37,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: SGFromTakadaCFTest
+          Value: TakadaSG
 #---------------------------
 # 以下、設定のエクスポート
 #---------------------------
@@ -58,7 +58,8 @@ Outputs:
   # セキュリティグループについて記載。
   TakadaExportSG:
     Value: !Ref TakadaMakeSG
-    # エクスポートする名前を決める。インポートする側のテンプレートでこのエクスポート名を指定する
+    # outputするvalueの指定は、!Refだけでなく!GetAttr等も使える。以下のような書き方。
+    # Value: !GetAttr TakadaMakeSG.VpcId
+    # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getatt.html
     Export:
-      # 取得する側で考えるとゲッター的な命名にするのが分かりやすそう。
       Name: GetTakadaSG
