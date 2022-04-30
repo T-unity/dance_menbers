@@ -10,7 +10,7 @@ Resources:
         - Key: Name
           Value: TakadaCFTest
   # subnetを作成
-  subnetName:
+  TakadaMakeSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: "ap-northeast-1a"
@@ -21,14 +21,14 @@ Resources:
         - Key: Name
           Value: Subnet1FromTakadaCFTest
   # セキュリティグループを作成
-  LogicalID:
+  TakadaMakeSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: TakadaMakeSG
       GroupDescription: "this is security Group"
       # 最上部で定義したVPCの論理IDを指定
       VpcId: !Ref TakadaMakeVPC
-      # インバウンドルールを設定
+      # インバウンドルールを設定。指定できる項目は複数あるので、詳細は公式Docを参照。
       # https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -38,3 +38,27 @@ Resources:
       Tags:
         - Key: Name
           Value: SGFromTakadaCFTest
+#---------------------------
+# 以下、設定のエクスポート
+#---------------------------
+# !Refは同一テンプレート内でしか参照できないため、Outputsで別のテンプレートファイルから値を参照可能にする。
+# 論理ID、value、exportの3つが必要
+Outputs:
+  # サブネットをエクスポート。
+  # 論理IDを指定。わかれば何でもOK。
+  TakadaExportSubnet:
+    # バリューを記載
+    # このテンプレート内で定義した、論理ID：subnetName の値を使用する
+    Value: !Ref TakadaMakeSubnet
+    # エクスポートする名前を決める。インポートする側のテンプレートでこのエクスポート名を指定する
+    Export:
+      # 取得する側で考えるとゲッター的な命名にするのが分かりやすそう。
+      Name: GetTakadaSubnet
+
+  # セキュリティグループについて記載。
+  TakadaExportSG:
+    Value: !Ref TakadaMakeSG
+    # エクスポートする名前を決める。インポートする側のテンプレートでこのエクスポート名を指定する
+    Export:
+      # 取得する側で考えるとゲッター的な命名にするのが分かりやすそう。
+      Name: GetTakadaSG
