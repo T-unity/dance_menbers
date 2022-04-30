@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
+  # VPCを作成
   TakadaMakeVPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -8,6 +9,7 @@ Resources:
       Tags:
         - Key: Name
           Value: TakadaCFTest
+  # subnetを作成
   subnetName:
     Type: AWS::EC2::Subnet
     Properties:
@@ -18,10 +20,11 @@ Resources:
       Tags:
         - Key: Name
           Value: Subnet1FromTakadaCFTest
+  # セキュリティグループを作成
   LogicalID:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: Takada-SG
+      GroupName: TakadaMakeSG
       GroupDescription: "this is security Group"
       # 最上部で定義したVPCの論理IDを指定
       VpcId: !Ref TakadaMakeVPC
