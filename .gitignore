@@ -1,1 +1,4 @@
 /cloudformation
+
+deploy.cloudformation.yml
+deploy.docker-compose.yml

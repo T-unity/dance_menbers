@@ -13,8 +13,10 @@ ENV TZ=UTC \
   COMPOSER_ALLOW_SUPERUSER=1 \
   COMPOSER_HOME=/composer
 
+# composerをマウント先へコピー
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
+# 必要なモジュールをDL
 RUN apt-get update \
   && apt-get -y install --no-install-recommends \
     locales \
@@ -35,8 +37,10 @@ RUN apt-get update \
   && composer config -g process-timeout 3600 \
   && composer config -g repos.packagist composer https://packagist.org
 
+# 本場ステージビルド
 FROM base AS deploy
 
+# php.iniとLaravelのコードをマウント先へコピー
 COPY ./infra/docker/php/php.deploy.ini /usr/local/etc/php/php.ini
 COPY ./src /data
 
@@ -45,5 +49,6 @@ COPY ./src /data
 #   && php artisan optimize:clear \
 #   && php artisan optimize
 
+# composer installを実行するとvendorとcomposer.lockが追加される
 RUN composer install -q -n --no-ansi --no-dev --no-scripts --no-progress --prefer-dist
 RUN chmod -R 777 storage bootstrap/cache
