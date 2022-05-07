@@ -6,3 +6,5 @@ deploy.docker-compose.yml
 /singleContainer
 
 test.deploy.yml
+
+/sample
