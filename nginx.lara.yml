@@ -1,0 +1,760 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: dancers
+
+#======================
+# 各種リソースに適用するパラメータを作成
+#======================
+Parameters:
+
+# EnvironmentNameでプロジェクト名を指定。
+# 後続の記述を見ると分かるが、 !Ref によって各リソースのNameタグの値となる。
+# EnvironmentNameの値の実体は、別途同階層のdev.cfgに記載
+  EnvironmentName:
+    Type: String
+
+# VPCのCIDRレンジ
+  VpcCIDR:
+    Type: String
+    Default: 10.99.0.0/16
+
+# パブリックサブネット1,2
+  # AZ1
+  PublicSubnet1CIDR:
+    Type: String
+    Default: 10.99.10.0/24
+  # AZ2
+  PublicSubnet2CIDR:
+    Type: String
+    Default: 10.99.11.0/24
+
+# プライベートサブネット1,2
+  PrivateSubnet1CIDR:
+    Type: String
+    Default: 10.99.20.0/24
+  PrivateSubnet2CIDR:
+    Type: String
+    Default: 10.99.21.0/24
+
+# Cluster名を入力
+  ClusterName:
+    Type: String
+
+# データベースに接続するパスワードを入力
+  DatabasePassword:
+    Type: String
+    NoEcho: "true"
+
+# デプロイするコンテナイメージのタグを指定する。デフォルトはlatest.
+  ApplicationImageTag:
+    Type: String
+    Default: latest
+
+# キーペア名を指定
+  Keypairname:
+    Type: AWS::EC2::KeyPair::KeyName
+
+# ECSコンテナインスタンスの最新のAMIのIDを取得する
+  ApplicationImageId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
+
+#サービスが実行するタスクの数を指定する
+# DesiredCountの実体は別途cfgファイルの方で指定している。
+  DesiredCount:
+    Type: String
+
+# パラメータの指定ここまで
+
+
+#######################
+#======================
+# 以下、リソース作成
+#======================
+#######################
+
+Resources:
+
+#======================
+##### ECR作成 #####
+#======================
+  ## Laravel用のリポジトリ作成
+  DancersMakeLaravelECR:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dancers/laravel
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Untagged images",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {"type": "expire"
+                }
+              }
+            ]
+          }
+
+  ## Nginx用のリポジトリ作成
+  DancersMakeNginxECR:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dancers/nginx
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Untagged images",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {"type": "expire"
+                }
+              }
+            ]
+          }
+
+
+#======================
+##### VPC作成 #####
+#======================
+# VPCを作成
+  DancersVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+
+
+#######################
+#======================
+#インターネットゲートウェイ作成
+#======================
+#######################
+
+  DancersIG:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+# インターネットゲートウェイをVPCにアタッチする
+  DancersIGAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref DancersIG
+      VpcId: !Ref DancersVPC
+
+
+
+#######################
+#======================
+#サブネット作成
+#======================
+#######################
+
+# パブリックサブネット1を作成
+  DancersPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+
+# パブリックサブネット2を作成
+  DancersPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+# プライベートサブネット1を作成
+  DancersPrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+
+# プライベートサブネット2を作成
+  DancersPrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+
+
+#######################
+#======================
+#ルートテーブル作成
+#======================
+#######################
+
+# ルートテーブル（パブリックサブネット用共通）作成
+# この段階ではローカルルートのみのルートテーブルができる。
+  DancersPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DancersVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
+
+  # インターネット接続用のパブリックなルーティングを作成
+  DancersDefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: DancersIGAttachment
+    # 全てのデフォルトルーティングがインターネットゲートウェイに向くように設定
+    Properties:
+      # パブリックルートテーブルにアタッチ
+      RouteTableId: !Ref DancersPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref DancersIG
+
+  # 設定したデフォルトルートを以下2つのルートテーブルにアタッチ
+  DancersPublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPublicRouteTable
+      SubnetId: !Ref DancersPublicSubnet1
+
+  DancersPublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPublicRouteTable
+      SubnetId: !Ref DancersPublicSubnet2
+
+# ルートテーブル（プライベートサブネット用共通）作成
+# プライベートサブネット用のルートはインターネット接続不要のためローカルルートのみでOK。
+  DancersPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DancersVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Routes
+
+  DancersPrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPrivateRouteTable
+      SubnetId: !Ref DancersPrivateSubnet1
+
+  DancersPrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPrivateRouteTable
+      SubnetId: !Ref DancersPrivateSubnet2
+
+# パブリックサブネットにNATGatewayを作成する
+  DancersNatGatewayPublic1:
+    Type: AWS::EC2::NatGateway
+    # エラスティックIPが作成されるのを待ってからNATゲートウェイを作成する。
+    DependsOn: EIP
+    Properties:
+      # EIPの指定に関して、以下動作の2:30あたりで注意事項あり。
+      # https://onl.sc/4tht5H9
+      AllocationId:
+          Fn::GetAtt:
+          - EIP
+          - AllocationId
+      # パブリックサブネットにNATゲートウェイを配置する
+      SubnetId: !Ref DancersPublicSubnet1
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+        Domain: vpc
+
+# NATGateway用のルーティングをプライベートサブネットのルートテーブルに追加する
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    DependsOn: DancersNatGatewayPublic1
+    Properties:
+      RouteTableId: !Ref DancersPrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref DancersNatGatewayPublic1
+
+
+
+#######################
+#======================
+##### ECS作成 #####
+#======================
+#######################
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref ClusterName
+
+# タスク定義
+  DancersTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      # Family=タスク定義のリビジョンをまとめるための名前
+      # ここで定義した名前のタスク定義が既に存在する場合は、そのタスク定義を更新する
+      # これ定義しないと、更新の度にランダムな番号で更新されてしまうので、基本は必ず設定する
+      Family: dancersTask
+      # EC2コンテナインスタンスの/dataディレクトリをpublicという名前のボリュームとして作成する
+      Volumes:
+        - Name: public
+          Host:
+            SourcePath: /data
+      # 以下、二つのコンテナを指定する。
+      ContainerDefinitions:
+      # メインのアプリケーションが起動するコンテナ
+        - Name: Laravel
+          # 使用するイメージを指定。最上部のパラメータで指定している。
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dancers/laravel:${ApplicationImageTag}
+          # このコンテナが確保するメモリ、CPUのリソースを指定（メガバイト？）
+          MemoryReservation: 395
+          Cpu: 245
+          # 上記で指定したVolumeと紐づけている。
+          MountPoints:
+            - SourceVolume: public
+              ContainerPath: /data
+          # docker-compose等で指定したい環境変数に合わせて指定する
+          Environment:
+            - Name: DJANGO_SETTINGS_MODULE
+              Value: dancers.settings_release
+            - Name: MYSQL_HOST
+              Value: !Sub ${DancersDB.Endpoint.Address}
+            - Name: MYSQL_USER
+              Value: dancers
+            - Name: MYSQL_PASSWORD
+              Value: !Ref DatabasePassword
+            - Name: MYSQL_DATABASE
+              Value: dancers
+            - Name: SECRET_KEY
+              Value: some-random-secret-should-be-here
+          # コンテナが実行するコマンドを指定する。
+          # このあたり要調査
+          Command:
+            - composer
+            - install
+          # ポートマッピング。コンテナポートを8000、ホストポートを0でダイナミックポートマッピングが可能になる。
+          PortMappings:
+            - ContainerPort: 8000
+              HostPort: 0
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /${AWS::StackName}/ecs/dancers
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: docker
+
+        # もう一つの方のコンテナ定義。
+        # こちらは、コマンドを一回実行するだけの一回限り使うコンテナ
+        - Name: Nginx
+          Essential: false
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dancers/nginx:${ApplicationImageTag}
+          MemoryReservation: 128
+          Cpu: 128
+          MountPoints:
+            - SourceVolume: public
+              ContainerPath: /data
+          # Nginx側で実行したいコマンドを記載
+          # Command:
+            # - python3
+            # - manage.py
+            # - collectstatic
+            # - --no-input
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /${AWS::StackName}/ecs/dancers
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: docker
+# CloudWatch Logsロググループ作成
+# タスク定義がクラウドウォッチにログをpushする際の設定を作成
+  DancersLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /${AWS::StackName}/ecs/dancers
+      RetentionInDays: 7
+
+# サービスの設定
+  DancersService:
+    Type: AWS::ECS::Service
+    # 以下のリソースが準備できてからサービスを起動したいので、DependsOnを指定。
+    DependsOn:
+      - DancersAutoscaling
+      - DancersLogGroup
+      - DancersALBHttpListener
+    Properties:
+      # 上部で作成したタスク定義を参照
+      TaskDefinition: !Ref DancersTaskDefinition
+      # ECS作成のとこで作ってるクラスタを参照
+      Cluster: !Ref Cluster
+      DesiredCount: !Ref DesiredCount
+      LoadBalancers:
+        - ContainerName: todobackend
+          ContainerPort: 8000
+          # この下で作成しているターゲットグループを指定
+          TargetGroupArn: !Ref DancersServiceTargetGroup
+      # AWSが予め用意しているロールを指定
+      # 設定済のロードバランサとECSを紐づける際に、サービスにアタッチする必要がある
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+
+
+
+#######################
+#======================
+##### RDS作成 #####
+#======================
+#######################
+
+  # DBを作成する。
+  DancersDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: MySQL
+      EngineVersion: 8.0
+      DBInstanceClass: db.t3.micro
+      # 割り当てるストレージの要領10GB
+      AllocatedStorage: 10
+      StorageType: gp2
+      # マスターユーザー名
+      MasterUsername: dancers
+      # パスワードはdev.cfgから参照
+      MasterUserPassword:
+        Ref: DatabasePassword
+      # DB名
+      DBName: dancers
+      VPCSecurityGroups:
+        - !Ref DancersDBSecGroup
+      # 一つ下のサブネットグループを指定
+      DBSubnetGroupName: !Ref DancersDBSubnetGroup
+      # 課金を抑えたいのでシングルAZで稼働させる
+      MultiAZ: "false"
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db
+
+
+  # RDSの仕様でRDSを稼働する際には必ずサブネットグループを作成する必要がある。
+  DancersDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Application Database Subnet Group
+      # 上で作成しているプライベートサブネット2つを割り当て
+      SubnetIds:
+        - !Ref DancersPrivateSubnet1
+        - !Ref DancersPrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-subnet-group
+
+
+# RDS用のセキュリティグループを作成
+# 循環参照にならないようにしている。
+# このあたりの理解怪しいので要確認。
+  DancersDBSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName} Application Database Security Group
+      VpcId: !Ref DancersVPC
+      # Egress＝`出口`
+      SecurityGroupEgress:
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          # 以下のIPアドレスは一般的なルールでテスト用のIPを指し示す。変数で言うhogeみたいなもの。
+          # Cloudformationの仕様で、RDSもアウトバウンドを指定しなければ通信が開放されてしまうため、あえてテスト用の無意味なIPアドレスをEgressに指定する。
+          CidrIp: 192.0.2.0/32
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-sg
+  # インバウンドルールを指定。
+  ApplicationToApplicationDatabaseIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      GroupId: !Ref DancersDBSecGroup
+      SourceSecurityGroupId: !Ref DancersAutoscalingSecGroup
+  # アウトバウンドルール
+  ApplicationToApplicationDatabaseEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      GroupId: !Ref DancersAutoscalingSecGroup
+      DestinationSecurityGroupId: !Ref DancersDBSecGroup
+
+
+# EC2用のセキュリティグループ
+  DancersAutoscalingSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName} Application Autoscaling Security Group
+      VpcId: !Ref DancersVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: udp
+          FromPort: 53
+          ToPort: 53
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+
+#######################
+#======================
+##### ALB作成 #####
+#======================
+#######################
+
+  # リスナーからの転送先であるターゲットグループ。
+  DancersServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      # 受け取った通信をターゲットグループ→ターゲットに対して、HTTPの8000ポートで転送する
+      # ダイナミックポートが指定されている場合は、ECSがよしなにやってくれる。
+      Protocol: HTTP
+      Port: 8000
+      VpcId: !Ref DancersVPC
+      # ターゲットが登録されるまでの待ち時間を指定。
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 30
+
+  # リスナーを作成。この設定だとHTTPしか設定してない点に注意。実際は証明書付きでHTTPSが必要。
+  DancersALBHttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref DancersLB
+      Protocol: HTTP
+      Port: 80
+      # デフォルトアクションを指定。ターゲットグループに転送するだけのシンプルなやつ。
+      DefaultActions:
+        - TargetGroupArn: !Ref DancersServiceTargetGroup
+          Type: forward
+
+  # ロードバランサー本体の設定
+  DancersLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      # スキームを指定。以下の記述で、ALBがパブリックIPを所有するようになる。
+      Scheme: internet-facing
+      # ALBを配置するサブネットを指定。
+      Subnets:
+        - !Ref DancersPublicSubnet1
+        - !Ref DancersPublicSubnet2
+      # ALBにアタッチするセキュリティグループを指定。
+      SecurityGroups:
+        - !Ref DancersALBSecGroup
+      # 30秒間データの送受信がない場合、LBは通信を終了する（デフォは60秒）
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value : 30
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-alb
+
+# ALB本体にアタッチするセキュリティグループを作成
+  DancersALBSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Application Load Balancer Security Group
+      VpcId: !Ref DancersVPC
+      # インバウンドルール。あらゆるIPアドレスからポート80に接続可能。
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: ${AWS::StackName}-alb-sg
+
+# 以下、2つのセキュリティルールを作成。
+# エフェメラルポートを指定していて、EC2とALBの間で動的ポートを使って通信できるようにしている。
+# EC2にアタッチするセキュリティグループのルール（EC2はALBからの通信を許可）
+  ApplicationLoadBalancerToApplicationIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 32768
+      ToPort: 60999
+      GroupId: !Ref DancersAutoscalingSecGroup
+      SourceSecurityGroupId: !Ref DancersALBSecGroup
+# ALBにアタッチするセキュリティグループ（ALBはEC2への通信を許可）
+  ApplicationLoadBalancerToApplicationEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 32768
+      ToPort: 60999
+      GroupId: !Ref DancersALBSecGroup
+      DestinationSecurityGroupId: !Ref DancersAutoscalingSecGroup
+
+
+########################
+#======================
+# AutoScaling作成
+#======================
+########################
+
+# オートスケーリングを作成
+  DancersAutoscaling:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    CreationPolicy:
+      ResourceSignal:
+        Count: 0
+        Timeout: PT5M
+    Properties:
+      # 一つ下で作成する起動設定を参照
+      LaunchConfigurationName: !Ref DancersAutoscalingLaunchConfiguration
+      MinSize: 0 # オートスケーリングの最小サイズ
+      MaxSize: 4 # オートスケーリングの最大サイズ
+      DesiredCapacity: 0 # 希望する容量
+      VPCZoneIdentifier:
+        - !Ref DancersPrivateSubnet1
+        - !Ref DancersPrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-ApplicationAutoscaling-instance
+          PropagateAtLaunch: "true"
+
+# 起動設定 / launch configrationを作成
+  DancersAutoscalingLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      # パラメータで設定した、最新のECSコンテナインスタンスのAMIのIDを指定している。
+      ImageId: !Ref ApplicationImageId
+      InstanceType: t3.micro
+      KeyName: !Ref Keypairname
+      # 下記で作成しているインスタンスプロファイルを指定。
+      IamInstanceProfile: !Ref DancersAutoscalingInstanceProfile
+      SecurityGroups:
+        - !GetAtt "DancersAutoscalingSecGroup.GroupId"
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash
+            echo ECS_CLUSTER=${CLUSTERNAME} > /etc/ecs/ecs.config
+            mkdir -p /data
+            chown -R 1000:1000 /data
+          - {
+              CLUSTERNAME: !Ref ClusterName
+            }
+# インスタンスプロファイル→EC2にIAMロールをアタッチする際に必要になる。
+# EC2を手動で作成する際はAWSがいい感じに作成してくれるが、cloudformationで作成する際は明示的に指定する必要がある。
+  DancersAutoscalingInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: DancersAutoscalingInstanceRole
+# ロール指定。起動設定で起動されたEC2インスタンスにアタッチするロールを設定する。
+  DancersAutoscalingInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ### ここまでの設定で、EC2インスタンスをアタッチする準備をしている ###
+      ### このロールにアタッチするポリシーをこれ以降でずらずらっと指定。 ###
+      # ECSコンテナインスタンスにアタッチするロールはAWSデフォルトのものがあり、以下の設定はそれとほぼ同一。
+      Policies:
+        - PolicyName: ECSContainerInstancePermissions
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:RegisterContainerInstance
+                  - ecs:DeregisterContainerInstance
+                  - ecs:UpdateContainerInstancesState
+                Resource: !Sub ${Cluster.Arn}
+              - Effect: Allow
+                Action:
+                  - ecs:DiscoverPollEndpoint
+                  - ecs:Submit*
+                  - ecs:Poll
+                  - ecs:StartTelemetrySession
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/${AWS::StackName}*
+      ### ポリシーの指定、ここまで ###
+
+
+#======================
+# アウトプット
+#======================
+
+# ALBのDNS名を出力。ALBに接続するためのURL
+Outputs:
+  PublicURL:
+    Value: !Sub ${DancersLB.DNSName}
