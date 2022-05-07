@@ -1,10 +1,4 @@
 /cloudformation
-
-deploy.cloudformation.yml
-deploy.docker-compose.yml
-
 /singleContainer
-
-test.deploy.yml
-
 /sample
+/Relics
