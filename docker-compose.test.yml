@@ -1,0 +1,38 @@
+# 起動コマンド
+# docker-compose -f docker-compose.test.yml up
+# ローカルではLaravelまで通信が到達する事を確認できたので、あとはこれをECSに反映するだけっぽい？
+
+version: "3.9"
+# version: "3.3"
+
+volumes:
+  db-store:
+  psysh-store:
+
+# サービスの定義
+services:
+  # Laravelコンテナ
+  app:
+    image: dancers/laravel
+    volumes:
+      - type: bind
+        source: ./src
+        target: /data
+      - type: volume
+        source: psysh-store
+        target: /root/.config/psysh
+        volume:
+          nocopy: true
+
+  # Nginxコンテナ
+  web:
+    image: dancers/nginx
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: ./src
+        target: /data
