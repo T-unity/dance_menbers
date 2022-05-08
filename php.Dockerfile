@@ -1,6 +1,7 @@
 #-----------------------
 # ・ECSへデプロイする用のLaravelイメージ
 # ・ビルドの際、開発環境ではdocker-composeでコンテキストを指定していたが、ECRへpushする都合上単体でビルドしたいため、ルートディレクトリに設置している。
+# https://qiita.com/carimatics/items/01663d32bf9983cfbcfe
 #-----------------------
 
 # ベースイメージを指定
@@ -24,7 +25,9 @@ ENV TZ=UTC \
 # リモートから取得するcomposerをDockerホストへコピー
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
-# 必要なモジュールをインストール。当然/dataで実行される
+# Laravelのサーバー要件を満たすために必要なモジュールをインストール。
+# https://readouble.com/laravel/8.x/ja/deployment.html
+# 当然/dataで実行される
 RUN apt-get update \
   && apt-get -y install --no-install-recommends \
     locales \
@@ -45,7 +48,7 @@ RUN apt-get update \
   && composer config -g process-timeout 3600 \
   && composer config -g repos.packagist composer https://packagist.org
 
-# デプロイステージビルド
+# デプロイステージをビルド
 # マルチステージビルドについて
 # https://matsuand.github.io/docs.docker.jp.onthefly/develop/develop-images/multistage-build/
 # https://qiita.com/polarbear08/items/e6855fc8caea1b03d54f

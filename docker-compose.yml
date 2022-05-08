@@ -28,6 +28,7 @@ services:
         source: ./src
         target: /data
       # こっちはボリュームマウント
+      # 上部のvolumes:で指定した名前付きボリュームと関連付く。
       - type: volume
         source: psysh-store
         target: /root/.config/psysh
