@@ -31,10 +31,13 @@ services:
   web:
     image: dancers/nginx
     ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-        mode: host
+      - 80:80
+    # ↑の書き方でも動作するのでよりシンプルな記述に変更。
+    # ports:
+    #   - target: 80
+    #     published: 80
+    #     protocol: tcp
+    #     mode: host
     volumes:
       - type: bind
         source: ./src
