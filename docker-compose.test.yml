@@ -13,7 +13,8 @@ version: "3.9"
 
 volumes:
   db-store:
-  psysh-store:
+  # 以下のやつは、laravel tinker(psysh)を使えるようになるみたいなのだが、不要なのでコメントアウト
+  # psysh-store:
 
 # サービスの定義
 services:
@@ -25,11 +26,11 @@ services:
       - type: bind
         source: ./src
         target: /data
-      - type: volume
-        source: psysh-store
-        target: /root/.config/psysh
-        volume:
-          nocopy: true
+      # - type: volume
+      #   source: psysh-store
+      #   target: /root/.config/psysh
+      #   volume:
+      #     nocopy: true
 
   # Nginxコンテナ
   web:
