@@ -39,6 +39,18 @@ https://github.com/T-unity/dance_menbers/wiki/tables
 
 <details>
 
+## 通信の流れ
+
+大まかに以下。
+
+・IGW（VPC）→ALB→Nginxコンテナ→Laravelコンテナ→RDS（MySQL）
+
+1. インターネットゲートウェイがHTTPリクエストを受信する
+1. IGW→ロードバランサーに通信を転送する
+1. ロードバランサー→Nginxコンテナに通信を転送する。Nginxコンテナはパブリックサブネットに設置するため、NATゲートウェイは経由しない。
+1. Nginxコンテナ→Laravelコンテナに通信を転送。Laravelコンテナも同一のパブリックサブネット内に設置する。ALBから、AZ-0に設置したNginx→Laravelと通信が転送される。
+1. LaravelとRDSが通信し、必要に応じて読み書きを行う。RDSはプライベートサブネットに設置するため外部インターネットからは接続できない。
+
 ### VPC
 
 AWS内に自分専用のネットワーク領域を作成する。ネットマスク、Cidrブロックに関してはもう少し調査必要。
