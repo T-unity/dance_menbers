@@ -3,6 +3,9 @@
 # docker-compose -f docker-compose.test.yml up
 # ローカルではLaravelまで通信が到達する事を確認できた。
 
+# その他参考
+# ・docker-compose の bind mount を1行で書くな
+# https://zenn.dev/sarisia/articles/0c1db052d09921
 
 version: "3.9"
 # EC2インスタンスで起動を試したい場合は、踏み台サーバーにしてるEC2の都合上3.3を指定する。
@@ -18,6 +21,7 @@ services:
   app:
     image: dancers/laravel
     volumes:
+      # - ./src:/data
       - type: bind
         source: ./src
         target: /data
@@ -39,6 +43,9 @@ services:
     #     protocol: tcp
     #     mode: host
     volumes:
+      # 短縮構文だと、マウント元になる対象（ディレクトリ）が存在しない場合に自動で対象を作成する。
+      # - ./src:/data
+      # 以下の構文だとマウント元の対象がない場合はエラーを吐いて終わり。
       - type: bind
         source: ./src
         target: /data
