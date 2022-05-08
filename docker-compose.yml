@@ -1,22 +1,44 @@
+# 開発環境用のdocker-compose.yml
+# 参考
+# https://qiita.com/ucan-lab/items/5fc1281cd8076c8ac9f4
+
 version: "3.9"
+
+# 名前付きボリュームを作成
 volumes:
   db-store:
   psysh-store:
+
+# サービスの定義
 services:
+  # Laravelコンテナを定義
   app:
     build:
       context: .
       dockerfile: ./infra/docker/php/Dockerfile
+      # buildのtarget機能では、Dockerfileで記述したマルチステージビルドのステージ名を指定する事で指定したステージを参照することができる。
+      # 以下の記事が分かりやすかった。
+      # https://onl.sc/DbktHQJ
       target: ${APP_BUILD_TARGET:-development}
     volumes:
+      # ホストマシンの/srcをDockerホストの/dataにバインドマウントする。
+      # マウントの種類については以下を参照。
+      # https://qiita.com/etaroid/items/88ec3a0e2d80d7cdf87a
       - type: bind
         source: ./src
         target: /data
+      # こっちはボリュームマウント
       - type: volume
         source: psysh-store
         target: /root/.config/psysh
         volume:
+          # 自動コピーを無効にする。
+          # http://docs.docker.jp/engine/reference/run.html?highlight=restart#run-volume
+          # https://amateur-engineer-blog.com/docer-compose-volumes/
           nocopy: true
+    # 環境変数を指定。
+    # Laravelの環境変数の概要については以下を参照。詳細は参考記事を。
+    # https://readouble.com/laravel/8.x/ja/configuration.html
     environment:
       - APP_DEBUG=${APP_DEBUG:-true}
       - APP_KEY=${APP_KEY:-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
@@ -31,20 +53,28 @@ services:
       - DB_USERNAME=${DB_USERNAME:-phper}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
 
+  # Nginxコンテナを定義。
   web:
     build:
       context: .
       dockerfile: ./infra/docker/nginx/Dockerfile
+    # ポート開放の細かい記法については以下を参照
+    # https://docs.docker.jp/compose/compose-file/compose-file-v3.html#id14
     ports:
+        # ターゲットはコンテナ側のポートを指定
       - target: 80
+        # 公開ポートを指定。おそらくホストマシンのポートを指定している。
         published: ${WEB_PUBLISHED_PORT:-80}
         protocol: tcp
         mode: host
     volumes:
+      # ホストマシンのsrc/をDockerホストの/dataにマウント。
       - type: bind
         source: ./src
         target: /data
 
+  # DBの定義。本番ではRDSを使うため開発環境でのみ必要。
+  # LaravelとRDSの疎通もAWS側のリソースで定義するため、以下の記述は本番では丸ごと不要。
   db:
     build:
       context: .

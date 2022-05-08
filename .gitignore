@@ -2,3 +2,9 @@
 /singleContainer
 /sample
 /Relics
+/apache
+
+# files
+test.deploy.yml
+2test.deploy.yml
+dev.cfg

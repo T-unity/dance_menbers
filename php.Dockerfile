@@ -1,6 +1,14 @@
+#-----------------------
+# ・ECSへデプロイする用のLaravelイメージ
+# ・ビルドの際、開発環境ではdocker-composeでコンテキストを指定していたが、ECRへpushする都合上単体でビルドしたいため、ルートディレクトリに設置している。
+#-----------------------
+
+# ベースイメージを指定
 # FROM php:8.1-fpm-bullseye AS base
 FROM php:8.1-fpm-buster AS base
 
+# /dataで作業を行う。この/dataは、ホストマシン側ではなくDockerホストの中に作成されるディレクトリ
+# https://docs.docker.jp/engine/reference/builder.html#workdir
 WORKDIR /data
 
 # timezone environment
@@ -13,10 +21,10 @@ ENV TZ=UTC \
   COMPOSER_ALLOW_SUPERUSER=1 \
   COMPOSER_HOME=/composer
 
-# リモートから取得するcomposerをDockerのマウント先へコピー
+# リモートから取得するcomposerをDockerホストへコピー
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
-# 必要なモジュールをインストール
+# 必要なモジュールをインストール。当然/dataで実行される
 RUN apt-get update \
   && apt-get -y install --no-install-recommends \
     locales \
@@ -38,9 +46,12 @@ RUN apt-get update \
   && composer config -g repos.packagist composer https://packagist.org
 
 # デプロイステージビルド
+# マルチステージビルドについて
+# https://matsuand.github.io/docs.docker.jp.onthefly/develop/develop-images/multistage-build/
+# https://qiita.com/polarbear08/items/e6855fc8caea1b03d54f
 FROM base AS deploy
 
-# php.iniとLaravelのコードをマウント先へコピー
+# php.iniとLaravelのコードをDockerホストへコピー
 COPY ./infra/docker/php/php.deploy.ini /usr/local/etc/php/php.ini
 COPY ./src /data
 
