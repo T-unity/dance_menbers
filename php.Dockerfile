@@ -4,6 +4,9 @@
 # https://qiita.com/carimatics/items/01663d32bf9983cfbcfe
 #-----------------------
 
+# ビルドコマンド
+# docker build -f ./php.Dockerfile . -t dancers/laravel
+
 # ベースイメージを指定
 # FROM php:8.1-fpm-bullseye AS base
 FROM php:8.1-fpm-buster AS base
