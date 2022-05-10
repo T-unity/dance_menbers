@@ -1,0 +1,215 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+#######################
+#======================
+# 参照用のパラメータを指定
+#======================
+#######################
+Parameters:
+# 環境名
+  EnvironmentName:
+    Type: String
+    Default: "dancers"
+# VPCのCidrレンジを指定
+# https://dev.classmethod.jp/articles/what-is-cidr/
+  VpcCIDR:
+    Type: String
+    Default: 10.99.0.0/16
+# パブリックサブネット1,2
+  # AZ1
+  PublicSubnet1CIDR:
+    Type: String
+    Default: 10.99.10.0/24
+  # AZ2
+  PublicSubnet2CIDR:
+    Type: String
+    Default: 10.99.11.0/24
+# プライベートサブネット1,2
+  PrivateSubnet1CIDR:
+    Type: String
+    Default: 10.99.20.0/24
+  PrivateSubnet2CIDR:
+    Type: String
+    Default: 10.99.21.0/24
+# Cluster名を入力
+  ClusterName:
+    Type: String
+    Default: "dancers-cluster"
+# データベースに接続するパスワードを入力
+  DatabasePassword:
+    Type: String
+    NoEcho: "true"
+# デプロイするコンテナイメージのタグを指定する。デフォルトはlatest.
+  ApplicationImageTag:
+    Type: String
+    Default: latest
+# キーペア名を指定
+  Keypairname:
+    Type: AWS::EC2::KeyPair::KeyName
+# ECSコンテナインスタンスの最新のAMIのIDを取得する
+  ApplicationImageId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
+#サービスが実行するタスクの数を指定する
+# DesiredCountの実体は別途cfgファイルの方で指定している。
+  DesiredCount:
+    Type: String
+
+
+##########
+## ■目次（⌘Fすればリソース作成の記述箇所に移動可能）
+#
+# ネットワーク系リソース作成
+# ・VPC、サブネット作成
+# ・インターネットゲートウェイ作成
+# ・ルートテーブル作成
+##########
+
+#######################
+#======================
+# リソースを作成
+#======================
+#######################
+Resources:
+
+
+
+#======================
+##### VPC、サブネット作成
+#======================
+  DancersVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      # https://onl.sc/auBJygA
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+# パブリックサブネット1,2を作成
+# このあたりは記法に関する事以外は特別記述する事はなさそう。
+  DancersPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      # !GetAZsあたりが若干特殊
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+  DancersPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+# プライベートサブネット1,2を作成
+  DancersPrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+  DancersPrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DancersVPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+
+
+#======================
+#インターネットゲートウェイ作成
+#======================
+  # `DancersIG`という名前でインターネットゲートウェイを作成。IGWの作成以外は特に何もしてない。
+  DancersIG:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+# インターネットゲートウェイをVPCにアタッチ。
+# VPCが外部インターネットと通信可能になる。
+  DancersIGAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      # 一つ上で作成したIGWのIDを指定して、作成したVPCにアタッチ。
+      InternetGatewayId: !Ref DancersIG
+      VpcId: !Ref DancersVPC
+
+
+
+#======================
+#ルートテーブル作成
+#======================
+# パブリックサブネット用ルートテーブル作成
+# ルートテーブルが所属するVPCを選択
+  DancersPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DancersVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
+
+  # インターネット接続用のパブリックなルーティングを作成
+  DancersDefaultPublicRoute:
+    Type: AWS::EC2::Route
+    # インターネットゲートウェイがVPCにアタッチされるのを待ってからルーティングを作成する
+    DependsOn: DancersIGAttachment
+    Properties:
+      # パブリックルートテーブルにルーティングの実体をアタッチ
+      # 全てのデフォルトルーティングがインターネットゲートウェイに向くように設定
+      RouteTableId: !Ref DancersPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref DancersIG
+  # 設定したデフォルトルートを2つのパブリックサブネットにアタッチ
+  DancersPublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPublicRouteTable
+      SubnetId: !Ref DancersPublicSubnet1
+  DancersPublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPublicRouteTable
+      SubnetId: !Ref DancersPublicSubnet2
+
+# ルートテーブル（プライベートサブネット用共通）作成
+# プライベートサブネット用のルートはインターネット接続不要のためローカルルートのみでOK。
+  DancersPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DancersVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Routes
+  DancersPrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPrivateRouteTable
+      SubnetId: !Ref DancersPrivateSubnet1
+  DancersPrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DancersPrivateRouteTable
+      SubnetId: !Ref DancersPrivateSubnet2
