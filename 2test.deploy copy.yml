@@ -50,44 +50,6 @@
           }
 
 
-
-
-
-#######################
-#======================
-# NAT Gateway作成
-#======================
-#######################
-# パブリックサブネットにNATGatewayを作成する
-  DancersNatGatewayOnPublic1:
-    Type: AWS::EC2::NatGateway
-    # エラスティックIPが作成されるのを待ってからNATゲートウェイを作成する。
-    DependsOn: EIP
-    Properties:
-      # EIPの指定に関して、以下動画の2:30あたりで注意事項あり。
-      # https://onl.sc/4tht5H9
-      AllocationId:
-          Fn::GetAtt:
-          - EIP
-          - AllocationId
-      # パブリックサブネットにNATゲートウェイを配置する
-      SubnetId: !Ref DancersPublicSubnet1
-  EIP:
-    Type: AWS::EC2::EIP
-    Properties:
-        Domain: vpc
-
-# NATGateway用のルーティングをプライベートサブネットのルートテーブルに追加する
-  PrivateRoute:
-    Type: AWS::EC2::Route
-    DependsOn: DancersNatGatewayOnPublic1
-    Properties:
-      RouteTableId: !Ref DancersPrivateRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref DancersNatGatewayOnPublic1
-
-
-
 #######################
 #======================
 ##### ECS作成 #####

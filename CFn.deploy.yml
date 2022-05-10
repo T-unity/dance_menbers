@@ -76,6 +76,7 @@ Resources:
 
 #======================
 ##### VPC、サブネット作成
+# AWS基本リソース。専用のネットワーク領域を確保
 #======================
   DancersVPC:
     Type: AWS::EC2::VPC
@@ -138,6 +139,7 @@ Resources:
 
 #======================
 #インターネットゲートウェイ作成
+# VPC（内部の各種インスタンス）を外部インターネットと通信可能にする
 #======================
   # `DancersIG`という名前でインターネットゲートウェイを作成。IGWの作成以外は特に何もしてない。
   DancersIG:
@@ -160,6 +162,7 @@ Resources:
 
 #======================
 #ルートテーブル作成
+# サブネットから外に出る通信が、VPC内のどこに向かうのかを定義する。
 #======================
 # パブリックサブネット用ルートテーブル作成
 # ルートテーブルが所属するVPCを選択
@@ -195,7 +198,8 @@ Resources:
       SubnetId: !Ref DancersPublicSubnet2
 
 # ルートテーブル（プライベートサブネット用共通）作成
-# プライベートサブネット用のルートはインターネット接続不要のためローカルルートのみでOK。
+# プライベートサブネット用のルートはインターネット接続不要（VPC内部でのみ通信できれば良い）のためローカルルート（local）のみでOK。
+# （ローカルルートはルートテーブルにデフォルトで付与され、削除不可能。）
   DancersPrivateRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -213,3 +217,39 @@ Resources:
     Properties:
       RouteTableId: !Ref DancersPrivateRouteTable
       SubnetId: !Ref DancersPrivateSubnet2
+
+
+
+#======================
+# NAT Gateway作成
+# プライベートサブネットが外部インターネットと通信したい場合に、一度NATゲートウェイを経由する事で通信可能になる。
+#======================
+# エラスティックIPを作成する
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+        Domain: vpc
+
+# パブリックサブネットにNATGatewayを作成する
+  DancersNatGatewayOnPublic1:
+    Type: AWS::EC2::NatGateway
+    # エラスティックIPが作成されるのを待ってからNATゲートウェイを作成する。
+    DependsOn: EIP
+    Properties:
+      # EIPの指定に関して、以下動画の2:30あたりで注意事項あり。
+      # https://onl.sc/4tht5H9
+      AllocationId:
+          Fn::GetAtt:
+          - EIP
+          - AllocationId
+      # パブリックサブネットにNATゲートウェイを配置する
+      SubnetId: !Ref DancersPublicSubnet1
+
+# NATGateway用のルーティングをプライベートサブネットのルートテーブルに追加する
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    DependsOn: DancersNatGatewayOnPublic1
+    Properties:
+      RouteTableId: !Ref DancersPrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref DancersNatGatewayOnPublic1
