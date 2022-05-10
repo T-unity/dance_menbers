@@ -6,7 +6,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 #======================
 #######################
 Parameters:
-# 環境名
+# 環境名を定義
   EnvironmentName:
     Type: String
     Default: "dancers"
@@ -16,11 +16,9 @@ Parameters:
     Type: String
     Default: 10.99.0.0/16
 # パブリックサブネット1,2
-  # AZ1
   PublicSubnet1CIDR:
     Type: String
     Default: 10.99.10.0/24
-  # AZ2
   PublicSubnet2CIDR:
     Type: String
     Default: 10.99.11.0/24
@@ -31,38 +29,52 @@ Parameters:
   PrivateSubnet2CIDR:
     Type: String
     Default: 10.99.21.0/24
-# Cluster名を入力
+# Cluster名を定義
   ClusterName:
     Type: String
     Default: "dancers-cluster"
-# データベースに接続するパスワードを入力
-  DatabasePassword:
-    Type: String
-    NoEcho: "true"
 # デプロイするコンテナイメージのタグを指定する。デフォルトはlatest.
   ApplicationImageTag:
     Type: String
     Default: latest
-# キーペア名を指定
-  Keypairname:
-    Type: AWS::EC2::KeyPair::KeyName
 # ECSコンテナインスタンスの最新のAMIのIDを取得する
   ApplicationImageId:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
+
+# 以下のパラメータに関しては、CFnテンプレートをコマンドラインからpushする際に、別途用意するcfgファイルを展開して値を読み込む。
+# データベースに接続するパスワードを入力
+  DatabasePassword:
+    Type: String
+    NoEcho: "true"
+# キーペア名を指定
+  Keypairname:
+    Type: AWS::EC2::KeyPair::KeyName
 #サービスが実行するタスクの数を指定する
-# DesiredCountの実体は別途cfgファイルの方で指定している。
   DesiredCount:
     Type: String
 
 
 ##########
-## ■目次（⌘Fすればリソース作成の記述箇所に移動可能）
+## ■目次（⌘ + F でリソース作成の記述箇所に移動可能）
 #
-# ネットワーク系リソース作成
+# ネットワーク系のリソース
 # ・VPC、サブネット作成
 # ・インターネットゲートウェイ作成
 # ・ルートテーブル作成
+#
+# コンテナ関係のリソース
+# ・ECR
+# ・クラスター
+# ・タスク定義
+# ・サービス
+# ・オートスケーリング
+#
+# 監視
+# ・CloudWatch Logs
+#
+# データベース
+# ・RDS MySQL8.0
 ##########
 
 #######################
@@ -71,8 +83,6 @@ Parameters:
 #======================
 #######################
 Resources:
-
-
 
 #======================
 ##### VPC、サブネット作成
@@ -253,3 +263,56 @@ Resources:
       RouteTableId: !Ref DancersPrivateRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref DancersNatGatewayOnPublic1
+
+
+# /////////////////////////////////////
+# /////////////////////////////////////
+
+#======================
+##### ECR作成 #####
+#======================
+  ## Laravel、Nginx用のリポジトリ作成
+  DancersMakeLaravelECR:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dancers/laravel
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Untagged images",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {"type": "expire"
+                }
+              }
+            ]
+          }
+  DancersMakeNginxECR:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dancers/nginx
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Untagged images",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {"type": "expire"
+                }
+              }
+            ]
+          }
